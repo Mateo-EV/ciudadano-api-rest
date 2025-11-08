@@ -1,13 +1,15 @@
-import type { UserRepository } from "../../../user/domain/contracts/user.repository"
-import type { HashContract } from "../../domain/contracts/hash.contract"
-import type { TokenContract } from "../../domain/contracts/token.contract"
+import { Injectable } from "@nestjs/common"
+import { UserRepository } from "../../../user/domain/contracts/user.repository"
+import { HashContract } from "../../domain/contracts/hash.contract"
+import { TokenContract } from "../../domain/contracts/token.contract"
 import { AuthInvalidCredentialsError } from "../../domain/errors/auth-invalid-credentials.error"
 
+@Injectable()
 export class LoginAuthUseCase {
   constructor(
-    private userRepository: UserRepository,
-    private hash: HashContract,
-    private token: TokenContract
+    private readonly userRepository: UserRepository,
+    private readonly hashContract: HashContract,
+    private readonly tokenContract: TokenContract
   ) {}
 
   async execute(
@@ -20,12 +22,15 @@ export class LoginAuthUseCase {
       throw new AuthInvalidCredentialsError()
     }
 
-    const isValidPassword = await this.hash.compare(password, user.password)
+    const isValidPassword = await this.hashContract.compare(
+      password,
+      user.password
+    )
     if (!isValidPassword) {
       throw new AuthInvalidCredentialsError()
     }
 
-    const token = await this.token.generate(user.id)
+    const token = await this.tokenContract.generate(user.id)
 
     return { token, isEmailVerified: user.isEmailVerified }
   }

@@ -12,6 +12,8 @@ import { PrismaVerificationCodeRepository } from "./infrastructure/repositories/
 import { HashService } from "./infrastructure/services/hash.service"
 import { MailAuthService } from "./infrastructure/services/mail-auth.service"
 import { TokenService } from "./infrastructure/services/token.service"
+import { APP_FILTER } from "@nestjs/core"
+import { AuthFilterException } from "./infrastructure/controllers/handlers/auth-exception-handler"
 
 @Module({
   imports: [UserModule],
@@ -28,7 +30,9 @@ import { TokenService } from "./infrastructure/services/token.service"
     {
       provide: VerificationCodeRepository,
       useClass: PrismaVerificationCodeRepository
-    }
+    },
+    // FILTERS
+    { provide: APP_FILTER, useClass: AuthFilterException }
   ],
   controllers: [AuthController]
 })
