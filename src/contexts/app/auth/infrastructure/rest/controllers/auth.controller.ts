@@ -1,5 +1,12 @@
 import { ZodValidationPipe } from "@/lib/zod/zod-validation.pipe"
-import { Body, Controller, Post, UsePipes } from "@nestjs/common"
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UsePipes
+} from "@nestjs/common"
 import { LoginAuthUseCase } from "../../../application/usecases/login-auth.use-case"
 import { RegisterAuthUserCase } from "../../../application/usecases/register-auth.user-case"
 import { VerifyEmailUseCase } from "../../../application/usecases/verify-email.use-case"
@@ -23,6 +30,7 @@ export class AuthController {
 
   @Post("login")
   @UsePipes(new ZodValidationPipe(loginRequestSchema))
+  @HttpCode(HttpStatus.OK)
   async login(@Body() loginRequestDto: LoginRequestDto) {
     const { isEmailVerified, token } = await this.loginAuthUseCase.execute(
       loginRequestDto.email,
@@ -40,6 +48,7 @@ export class AuthController {
 
   @Post("register")
   @UsePipes(new ZodValidationPipe(registerRequestSchema))
+  @HttpCode(HttpStatus.CREATED)
   async register(@Body() registerRequestDto: RegisterRequestDto) {
     const user = await this.registerAuthUseCase.execute(registerRequestDto)
 
@@ -58,6 +67,7 @@ export class AuthController {
 
   @Post("verify-email")
   @UsePipes(new ZodValidationPipe(verifyEmailRequestSchema))
+  @HttpCode(HttpStatus.OK)
   async verifyEmail(@Body() verifyEmailDto: VerifyEmailRequestDto) {
     await this.verifyEmailUseCase.execute(verifyEmailDto)
 
