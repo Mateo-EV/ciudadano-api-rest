@@ -14,7 +14,7 @@ import { AuthInvalidEmailOrCodeToVerify } from "../../../domain/errors/auth-inva
 import { AuthEmailInvalidToVerify } from "../../../domain/errors/auth-email-invalid-to-verify"
 
 @Catch(Error)
-export class AuthFilterException extends BaseExceptionFilter {
+export class AuthExceptionHandler extends BaseExceptionFilter {
   catch(exception: Error, host: ArgumentsHost) {
     if (exception instanceof HttpException) {
       super.catch(exception, host)

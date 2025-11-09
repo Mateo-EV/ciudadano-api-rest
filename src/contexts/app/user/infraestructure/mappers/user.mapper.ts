@@ -3,7 +3,7 @@ import { User } from "../../domain/entities/user"
 
 export class UserMapper {
   static prisma = {
-    toDomain(prismaUser: PrismaUser): User {
+    toDomain(prismaUser: Partial<PrismaUser>): User {
       return User.create({
         id: prismaUser.id,
         firstName: prismaUser.first_name,

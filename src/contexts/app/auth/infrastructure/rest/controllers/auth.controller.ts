@@ -2,9 +2,11 @@ import { ZodValidationPipe } from "@/lib/zod/zod-validation.pipe"
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
+  Req,
   UsePipes
 } from "@nestjs/common"
 import { LoginAuthUseCase } from "../../../application/usecases/login-auth.use-case"
@@ -24,6 +26,9 @@ import {
   ResendEmailVerificationCodeRequestDto,
   resendEmailVerificationCodeRequestSchema
 } from "../requests/resend-email-verification-code-request.dto"
+import { Public } from "../../decorators/public"
+import type { Request } from "express"
+import { User } from "@/contexts/app/user/domain/entities/user"
 
 @Controller("auth")
 export class AuthController {
@@ -35,6 +40,7 @@ export class AuthController {
   ) {}
 
   @Post("login")
+  @Public()
   @UsePipes(new ZodValidationPipe(loginRequestSchema))
   @HttpCode(HttpStatus.OK)
   async login(@Body() loginRequestDto: LoginRequestDto) {
@@ -53,6 +59,7 @@ export class AuthController {
   }
 
   @Post("register")
+  @Public()
   @UsePipes(new ZodValidationPipe(registerRequestSchema))
   @HttpCode(HttpStatus.CREATED)
   async register(@Body() registerRequestDto: RegisterRequestDto) {
@@ -72,6 +79,7 @@ export class AuthController {
   }
 
   @Post("verify-email")
+  @Public()
   @UsePipes(new ZodValidationPipe(verifyEmailRequestSchema))
   @HttpCode(HttpStatus.OK)
   async verifyEmail(@Body() verifyEmailDto: VerifyEmailRequestDto) {
@@ -83,6 +91,7 @@ export class AuthController {
   }
 
   @Post("resend-email-verification-code")
+  @Public()
   @UsePipes(new ZodValidationPipe(resendEmailVerificationCodeRequestSchema))
   @HttpCode(HttpStatus.OK)
   async resendEmailVerificationCode(
@@ -95,6 +104,23 @@ export class AuthController {
 
     return {
       message: "Código de verificación reenviado exitosamente"
+    }
+  }
+
+  @Get("profile")
+  getProfile(@Req() req: Request) {
+    const user = req.user as User
+
+    return {
+      data: {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        dni: user.dni,
+        email: user.email,
+        isEmailVerified: user.isEmailVerified,
+        phone: user.phone
+      }
     }
   }
 }
