@@ -7,13 +7,14 @@ import { HashContract } from "./domain/contracts/hash.contract"
 import { MailAuthContract } from "./domain/contracts/mail-auth.contract"
 import { VerificationCodeRepository } from "./domain/contracts/repositories/verification-code.repository"
 import { TokenContract } from "./domain/contracts/token.contract"
-import { AuthController } from "./infrastructure/controllers/auth.controller"
 import { PrismaVerificationCodeRepository } from "./infrastructure/repositories/prisma-verification-code.repository"
 import { HashService } from "./infrastructure/services/hash.service"
 import { MailAuthService } from "./infrastructure/services/mail-auth.service"
 import { TokenService } from "./infrastructure/services/token.service"
 import { APP_FILTER } from "@nestjs/core"
-import { AuthFilterException } from "./infrastructure/controllers/handlers/auth-exception-handler"
+import { VerifyEmailUseCase } from "./application/usecases/verify-email.use-case"
+import { AuthFilterException } from "./infrastructure/rest/filters/auth-exception-handler"
+import { AuthController } from "./infrastructure/rest/controllers/auth.controller"
 
 @Module({
   imports: [UserModule],
@@ -21,6 +22,7 @@ import { AuthFilterException } from "./infrastructure/controllers/handlers/auth-
     // USECASES
     LoginAuthUseCase,
     RegisterAuthUserCase,
+    VerifyEmailUseCase,
     // MANAGERS
     MailVerificationManager,
     // CONTRACTS

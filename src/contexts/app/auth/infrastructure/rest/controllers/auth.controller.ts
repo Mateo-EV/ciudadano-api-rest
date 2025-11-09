@@ -1,13 +1,13 @@
 import { ZodValidationPipe } from "@/lib/zod/zod-validation.pipe"
 import { Body, Controller, Post, UsePipes } from "@nestjs/common"
-import { LoginAuthUseCase } from "../../application/usecases/login-auth.use-case"
-import { RegisterAuthUserCase } from "../../application/usecases/register-auth.user-case"
+import { LoginAuthUseCase } from "../../../application/usecases/login-auth.use-case"
+import { RegisterAuthUserCase } from "../../../application/usecases/register-auth.user-case"
+import { VerifyEmailUseCase } from "../../../application/usecases/verify-email.use-case"
 import { LoginRequestDto, loginRequestSchema } from "../requests/login.dto"
 import {
   RegisterRequestDto,
   registerRequestSchema
 } from "../requests/register.dto"
-import { VerifyEmailUseCase } from "../../application/usecases/verify-email.use-case"
 import {
   VerifyEmailRequestDto,
   verifyEmailRequestSchema
