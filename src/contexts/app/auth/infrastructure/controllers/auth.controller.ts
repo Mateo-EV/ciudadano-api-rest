@@ -7,12 +7,18 @@ import {
   RegisterRequestDto,
   registerRequestSchema
 } from "../requests/register.dto"
+import { VerifyEmailUseCase } from "../../application/usecases/verify-email.use-case"
+import {
+  VerifyEmailRequestDto,
+  verifyEmailRequestSchema
+} from "../requests/verify-email-request.dto"
 
 @Controller("auth")
 export class AuthController {
   constructor(
     private readonly loginAuthUseCase: LoginAuthUseCase,
-    private readonly registerAuthUseCase: RegisterAuthUserCase
+    private readonly registerAuthUseCase: RegisterAuthUserCase,
+    private readonly verifyEmailUseCase: VerifyEmailUseCase
   ) {}
 
   @Post("login")
@@ -47,6 +53,16 @@ export class AuthController {
         }
       },
       message: "Registro exitoso"
+    }
+  }
+
+  @Post("verify-email")
+  @UsePipes(new ZodValidationPipe(verifyEmailRequestSchema))
+  async verifyEmail(@Body() verifyEmailDto: VerifyEmailRequestDto) {
+    await this.verifyEmailUseCase.execute(verifyEmailDto)
+
+    return {
+      message: "Email verificado exitosamente"
     }
   }
 }

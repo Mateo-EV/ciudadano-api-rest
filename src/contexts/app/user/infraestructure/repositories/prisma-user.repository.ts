@@ -50,4 +50,11 @@ export class PrismaUserRepository implements UserRepository {
 
     return UserMapper.prisma.toDomain(updatedUserPrisma)
   }
+
+  async markEmailAsVerified(userId: string): Promise<void> {
+    await this.prismaService.user.update({
+      where: { id: userId },
+      data: { email_verified: true, verificationCode: { delete: {} } }
+    })
+  }
 }

@@ -1,9 +1,8 @@
 import { Injectable } from "@nestjs/common"
 import { MailAuthContract } from "../../domain/contracts/mail-auth.contract"
 import { VerificationCodeRepository } from "../../domain/contracts/repositories/verification-code.repository"
-import { AuthEmailVerificationThrottleExceededError } from "../../domain/errors/auth-email-verification-throttle-exceeded-error"
 import { VerificationCode } from "../../domain/entities/verification-code"
-import { HashContract } from "../../domain/contracts/hash.contract"
+import { AuthEmailVerificationThrottleExceededError } from "../../domain/errors/auth-email-verification-throttle-exceeded-error"
 
 @Injectable()
 export class MailVerificationManager {
@@ -12,8 +11,7 @@ export class MailVerificationManager {
 
   constructor(
     private readonly mailAuthContract: MailAuthContract,
-    private readonly verificationCodeRepository: VerificationCodeRepository,
-    private readonly hashContract: HashContract
+    private readonly verificationCodeRepository: VerificationCodeRepository
   ) {}
 
   async sendVerificationCode(email: string, userId: string): Promise<void> {
@@ -33,7 +31,7 @@ export class MailVerificationManager {
     await this.verificationCodeRepository.create(
       VerificationCode.create({
         userId,
-        code: await this.hashContract.hash(code),
+        code,
         expiresAt: new Date(Date.now() + this.EXPIRATION_TIME_MS)
       })
     )

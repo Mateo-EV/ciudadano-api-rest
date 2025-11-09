@@ -9,6 +9,8 @@ import { BaseExceptionFilter } from "@nestjs/core"
 import { AuthEmailAlreadyRegisteredError } from "../../../domain/errors/auth-email-already-registered.error"
 import { AuthEmailVerificationThrottleExceededError } from "../../../domain/errors/auth-email-verification-throttle-exceeded-error"
 import { AuthInvalidCredentialsError } from "../../../domain/errors/auth-invalid-credentials.error"
+import { AuthEmailAlreadyVerified } from "../../../domain/errors/auth-email-already-verified"
+import { AuthInvalidEmailOrCodeToVerify } from "../../../domain/errors/auth-invalid-email-or-code-to-verify"
 
 @Catch(Error)
 export class AuthFilterException extends BaseExceptionFilter {
@@ -31,6 +33,10 @@ export class AuthFilterException extends BaseExceptionFilter {
         exception.message,
         HttpStatus.TOO_MANY_REQUESTS
       )
+    } else if (exception instanceof AuthEmailAlreadyVerified) {
+      httpException = new BadRequestException(exception.message)
+    } else if (exception instanceof AuthInvalidEmailOrCodeToVerify) {
+      httpException = new BadRequestException(exception.message)
     }
 
     super.catch(httpException ?? exception, host)
