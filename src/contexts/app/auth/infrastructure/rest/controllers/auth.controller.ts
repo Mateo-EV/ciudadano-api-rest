@@ -19,13 +19,19 @@ import {
   VerifyEmailRequestDto,
   verifyEmailRequestSchema
 } from "../requests/verify-email-request.dto"
+import { ResendEmailVerificationCodeUseCase } from "../../../application/usecases/resend-email-verification-code.use-case"
+import {
+  ResendEmailVerificationCodeRequestDto,
+  resendEmailVerificationCodeRequestSchema
+} from "../requests/resend-email-verification-code-request.dto"
 
 @Controller("auth")
 export class AuthController {
   constructor(
     private readonly loginAuthUseCase: LoginAuthUseCase,
     private readonly registerAuthUseCase: RegisterAuthUserCase,
-    private readonly verifyEmailUseCase: VerifyEmailUseCase
+    private readonly verifyEmailUseCase: VerifyEmailUseCase,
+    private readonly resendEmailVerificationCodeUseCase: ResendEmailVerificationCodeUseCase
   ) {}
 
   @Post("login")
@@ -73,6 +79,22 @@ export class AuthController {
 
     return {
       message: "Email verificado exitosamente"
+    }
+  }
+
+  @Post("resend-email-verification-code")
+  @UsePipes(new ZodValidationPipe(resendEmailVerificationCodeRequestSchema))
+  @HttpCode(HttpStatus.OK)
+  async resendEmailVerificationCode(
+    @Body()
+    resendEmailVerificationCodeDto: ResendEmailVerificationCodeRequestDto
+  ) {
+    await this.resendEmailVerificationCodeUseCase.execute(
+      resendEmailVerificationCodeDto.email
+    )
+
+    return {
+      message: "Código de verificación reenviado exitosamente"
     }
   }
 }

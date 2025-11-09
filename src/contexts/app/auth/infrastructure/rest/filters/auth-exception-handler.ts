@@ -11,6 +11,7 @@ import { AuthEmailVerificationThrottleExceededError } from "../../../domain/erro
 import { AuthInvalidCredentialsError } from "../../../domain/errors/auth-invalid-credentials.error"
 import { AuthEmailAlreadyVerified } from "../../../domain/errors/auth-email-already-verified"
 import { AuthInvalidEmailOrCodeToVerify } from "../../../domain/errors/auth-invalid-email-or-code-to-verify"
+import { AuthEmailInvalidToVerify } from "../../../domain/errors/auth-email-invalid-to-verify"
 
 @Catch(Error)
 export class AuthFilterException extends BaseExceptionFilter {
@@ -36,6 +37,8 @@ export class AuthFilterException extends BaseExceptionFilter {
     } else if (exception instanceof AuthEmailAlreadyVerified) {
       httpException = new BadRequestException(exception.message)
     } else if (exception instanceof AuthInvalidEmailOrCodeToVerify) {
+      httpException = new BadRequestException(exception.message)
+    } else if (exception instanceof AuthEmailInvalidToVerify) {
       httpException = new BadRequestException(exception.message)
     }
 
