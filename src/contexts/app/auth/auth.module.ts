@@ -16,16 +16,17 @@ import { TokenContract } from "./domain/contracts/token.contract"
 import { PrismaVerificationCodeRepository } from "./infrastructure/repositories/prisma-verification-code.repository"
 import { AuthController } from "./infrastructure/rest/controllers/auth.controller"
 import { AuthExceptionHandler } from "./infrastructure/rest/filters/auth-exception-handler"
+import { JwtAuthGuard } from "./infrastructure/rest/guards/jwt-auth.guard"
+import { JwtStrategy } from "./infrastructure/rest/strategies/jwt.strategy"
 import { HashService } from "./infrastructure/services/hash.service"
 import { MailAuthService } from "./infrastructure/services/mail-auth.service"
 import { TokenService } from "./infrastructure/services/token.service"
-import { JwtStrategy } from "./infrastructure/rest/strategies/jwt.strategy"
-import { JwtAuthGuard } from "./infrastructure/rest/guards/jwt-auth.guard"
 
 @Module({
   imports: [
     UserModule,
     JwtModule.registerAsync({
+      inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>("JWT_SECRET"),
         signOptions: {
