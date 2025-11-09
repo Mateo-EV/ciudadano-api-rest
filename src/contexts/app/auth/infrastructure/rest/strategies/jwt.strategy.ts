@@ -3,6 +3,7 @@ import { PassportStrategy } from "@nestjs/passport"
 import { Injectable, UnauthorizedException } from "@nestjs/common"
 import { ConfigService } from "@nestjs/config"
 import { GetAuthProfileUseCase } from "../../../application/usecases/get-auth-profile.use-case"
+import { AuthEmailNotVerifiedError } from "../../../domain/errors/auth-email-not-verified.error"
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -21,6 +22,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     if (!user) {
       throw new UnauthorizedException()
+    }
+
+    if (!user.isEmailVerified) {
+      throw new AuthEmailNotVerifiedError()
     }
 
     return user

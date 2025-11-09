@@ -5,6 +5,7 @@ import { User } from "../../../user/domain/entities/user"
 import { HashContract } from "../../domain/contracts/hash.contract"
 import { AuthEmailAlreadyRegisteredError } from "../../domain/errors/auth-email-already-registered.error"
 import { MailVerificationManager } from "../managers/mail-verification.manager"
+import { AuthDniAlreadyRegisteredError } from "../../domain/errors/auth-dni-already-registered.error"
 
 interface RegisterAuthUserCaseInput {
   email: string
@@ -31,6 +32,12 @@ export class RegisterAuthUserCase
 
     if (thereIsUserWithEmail) {
       throw new AuthEmailAlreadyRegisteredError(input.email)
+    }
+
+    const thereIsUserWithDni = await this.userRepository.findByDni(input.dni)
+
+    if (thereIsUserWithDni) {
+      throw new AuthDniAlreadyRegisteredError(input.dni)
     }
 
     const hashedPassword = await this.hashContract.hash(input.password)

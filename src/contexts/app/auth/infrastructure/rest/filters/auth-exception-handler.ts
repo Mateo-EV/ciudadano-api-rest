@@ -3,7 +3,8 @@ import {
   BadRequestException,
   Catch,
   HttpException,
-  HttpStatus
+  HttpStatus,
+  UnauthorizedException
 } from "@nestjs/common"
 import { BaseExceptionFilter } from "@nestjs/core"
 import { AuthEmailAlreadyRegisteredError } from "../../../domain/errors/auth-email-already-registered.error"
@@ -12,6 +13,8 @@ import { AuthInvalidCredentialsError } from "../../../domain/errors/auth-invalid
 import { AuthEmailAlreadyVerified } from "../../../domain/errors/auth-email-already-verified"
 import { AuthInvalidEmailOrCodeToVerify } from "../../../domain/errors/auth-invalid-email-or-code-to-verify"
 import { AuthEmailInvalidToVerify } from "../../../domain/errors/auth-email-invalid-to-verify"
+import { AuthDniAlreadyRegisteredError } from "../../../domain/errors/auth-dni-already-registered.error"
+import { AuthEmailNotVerifiedError } from "../../../domain/errors/auth-email-not-verified.error"
 
 @Catch(Error)
 export class AuthExceptionHandler extends BaseExceptionFilter {
@@ -40,6 +43,10 @@ export class AuthExceptionHandler extends BaseExceptionFilter {
       httpException = new BadRequestException(exception.message)
     } else if (exception instanceof AuthEmailInvalidToVerify) {
       httpException = new BadRequestException(exception.message)
+    } else if (exception instanceof AuthDniAlreadyRegisteredError) {
+      httpException = new BadRequestException(exception.message)
+    } else if (exception instanceof AuthEmailNotVerifiedError) {
+      httpException = new UnauthorizedException(exception.message)
     }
 
     super.catch(httpException ?? exception, host)

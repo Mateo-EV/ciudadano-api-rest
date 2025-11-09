@@ -3,6 +3,7 @@ import { UserRepository } from "../../../user/domain/contracts/user.repository"
 import { HashContract } from "../../domain/contracts/hash.contract"
 import { TokenContract } from "../../domain/contracts/token.contract"
 import { AuthInvalidCredentialsError } from "../../domain/errors/auth-invalid-credentials.error"
+import { AuthEmailNotVerifiedError } from "../../domain/errors/auth-email-not-verified.error"
 
 @Injectable()
 export class LoginAuthUseCase {
@@ -12,10 +13,7 @@ export class LoginAuthUseCase {
     private readonly tokenContract: TokenContract
   ) {}
 
-  async execute(
-    email: string,
-    password: string
-  ): Promise<{ token: string; isEmailVerified: boolean }> {
+  async execute(email: string, password: string): Promise<{ token: string }> {
     const user = await this.userRepository.findByEmail(email)
 
     if (!user) {
@@ -30,8 +28,12 @@ export class LoginAuthUseCase {
       throw new AuthInvalidCredentialsError()
     }
 
+    if (!user.isEmailVerified) {
+      throw new AuthEmailNotVerifiedError()
+    }
+
     const token = await this.tokenContract.generate(user.id)
 
-    return { token, isEmailVerified: user.isEmailVerified }
+    return { token }
   }
 }

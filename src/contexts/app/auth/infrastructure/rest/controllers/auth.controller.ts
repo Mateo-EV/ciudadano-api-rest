@@ -29,6 +29,7 @@ import {
 import { Public } from "../../decorators/public"
 import type { Request } from "express"
 import { User } from "@/contexts/app/user/domain/entities/user"
+import { ApiBearerAuth } from "@nestjs/swagger"
 
 @Controller("auth")
 export class AuthController {
@@ -44,14 +45,13 @@ export class AuthController {
   @UsePipes(new ZodValidationPipe(loginRequestSchema))
   @HttpCode(HttpStatus.OK)
   async login(@Body() loginRequestDto: LoginRequestDto) {
-    const { isEmailVerified, token } = await this.loginAuthUseCase.execute(
+    const { token } = await this.loginAuthUseCase.execute(
       loginRequestDto.email,
       loginRequestDto.password
     )
 
     return {
       data: {
-        isEmailVerified,
         token
       },
       message: "Ingreso exitoso"
@@ -74,7 +74,7 @@ export class AuthController {
           email: user.email
         }
       },
-      message: "Registro exitoso"
+      message: "Registro exitoso, verifica tu correo electrónico"
     }
   }
 
@@ -108,6 +108,7 @@ export class AuthController {
   }
 
   @Get("profile")
+  @ApiBearerAuth()
   getProfile(@Req() req: Request) {
     const user = req.user as User
 

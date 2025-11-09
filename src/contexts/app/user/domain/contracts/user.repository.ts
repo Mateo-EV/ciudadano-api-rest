@@ -7,4 +7,5 @@ export abstract class UserRepository {
   abstract update(user: User): Promise<User>
   abstract delete(id: string): Promise<void>
   abstract markEmailAsVerified(userId: string): Promise<void>
+  abstract findByDni(dni: string): Promise<User | null>
 }
