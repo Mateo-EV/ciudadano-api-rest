@@ -1,3 +1,9 @@
+import { SendPasswordResetCodeEmailUseCase } from "@/contexts/app/auth/application/usecases/send-password-reset-code-email.use-case"
+import {
+  SendPasswordResetCodeEmailRequestDto,
+  sendPasswordResetCodeEmailRequestSchema
+} from "@/contexts/app/auth/infrastructure/rest/requests/send-password-reset-code-email-request.dto"
+import { User } from "@/contexts/app/user/domain/entities/user"
 import { ZodValidationPipe } from "@/lib/zod/zod-validation.pipe"
 import {
   Body,
@@ -10,32 +16,36 @@ import {
   Req,
   UsePipes
 } from "@nestjs/common"
+import { ApiBearerAuth } from "@nestjs/swagger"
+import type { Request } from "express"
 import { LoginAuthUseCase } from "../../../application/usecases/login-auth.use-case"
 import { RegisterAuthUserCase } from "../../../application/usecases/register-auth.user-case"
+import { ResendEmailVerificationCodeUseCase } from "../../../application/usecases/resend-email-verification-code.use-case"
+import { UpdateProfileUseCase } from "../../../application/usecases/update-profile.use-case"
 import { VerifyEmailUseCase } from "../../../application/usecases/verify-email.use-case"
+import { Public } from "../../decorators/public"
 import { LoginRequestDto, loginRequestSchema } from "../requests/login.dto"
 import {
   RegisterRequestDto,
   registerRequestSchema
 } from "../requests/register.dto"
 import {
-  VerifyEmailRequestDto,
-  verifyEmailRequestSchema
-} from "../requests/verify-email-request.dto"
-import { ResendEmailVerificationCodeUseCase } from "../../../application/usecases/resend-email-verification-code.use-case"
-import {
   ResendEmailVerificationCodeRequestDto,
   resendEmailVerificationCodeRequestSchema
 } from "../requests/resend-email-verification-code-request.dto"
-import { Public } from "../../decorators/public"
-import type { Request } from "express"
-import { User } from "@/contexts/app/user/domain/entities/user"
-import { ApiBearerAuth } from "@nestjs/swagger"
 import {
   UpdateProfileRequestDto,
   updateProfileRequestSchema
 } from "../requests/update-profile-request.dto"
-import { UpdateProfileUseCase } from "../../../application/usecases/update-profile.use-case"
+import {
+  VerifyEmailRequestDto,
+  verifyEmailRequestSchema
+} from "../requests/verify-email-request.dto"
+import {
+  SendResetPasswordCodeEmailRequestDto,
+  sendResetPasswordCodeEmailRequestSchema
+} from "@/contexts/app/auth/infrastructure/rest/requests/reset-password-request.dto"
+import { ResetPasswordUseCase } from "@/contexts/app/auth/application/usecases/reset-password.use-case"
 
 @Controller("auth")
 export class AuthController {
@@ -44,7 +54,9 @@ export class AuthController {
     private readonly registerAuthUseCase: RegisterAuthUserCase,
     private readonly verifyEmailUseCase: VerifyEmailUseCase,
     private readonly resendEmailVerificationCodeUseCase: ResendEmailVerificationCodeUseCase,
-    private readonly updateProfileUseCase: UpdateProfileUseCase
+    private readonly updateProfileUseCase: UpdateProfileUseCase,
+    private readonly sendPasswordResetCodeEmailUseCase: SendPasswordResetCodeEmailUseCase,
+    private readonly resetPasswordUseCase: ResetPasswordUseCase
   ) {}
 
   @Post("login")
@@ -111,6 +123,40 @@ export class AuthController {
 
     return {
       message: "Código de verificación reenviado exitosamente"
+    }
+  }
+
+  @Post("send-password-reset-code-email")
+  @Public()
+  @HttpCode(HttpStatus.CREATED)
+  async sendPasswordResetCodeEmail(
+    @Body(new ZodValidationPipe(sendPasswordResetCodeEmailRequestSchema))
+    sendPasswordResetCodeEmailRequestDto: SendPasswordResetCodeEmailRequestDto
+  ) {
+    await this.sendPasswordResetCodeEmailUseCase.execute({
+      email: sendPasswordResetCodeEmailRequestDto.email
+    })
+
+    return {
+      message: "Código de restablecimiento de contraseña enviado exitosamente"
+    }
+  }
+
+  @Post("reset-password")
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(
+    @Body(new ZodValidationPipe(sendResetPasswordCodeEmailRequestSchema))
+    sendResetPasswordCodeEmailRequestDto: SendResetPasswordCodeEmailRequestDto
+  ) {
+    await this.resetPasswordUseCase.execute({
+      email: sendResetPasswordCodeEmailRequestDto.email,
+      newPassword: sendResetPasswordCodeEmailRequestDto.password,
+      code: sendResetPasswordCodeEmailRequestDto.code
+    })
+
+    return {
+      message: "Contraseña restablecida exitosamente"
     }
   }
 

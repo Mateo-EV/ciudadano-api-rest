@@ -15,6 +15,15 @@ import { AuthInvalidEmailOrCodeToVerify } from "../../../domain/errors/auth-inva
 import { AuthEmailInvalidToVerify } from "../../../domain/errors/auth-email-invalid-to-verify"
 import { AuthDniAlreadyRegisteredError } from "../../../domain/errors/auth-dni-already-registered.error"
 import { AuthEmailNotVerifiedError } from "../../../domain/errors/auth-email-not-verified.error"
+import { AuthInvalidEmailOrCodeToResetPassword } from "@/contexts/app/auth/domain/errors/auth-invalid-email-or-code-to-reset-password.error"
+import { AuthEmailPasswordResetThrottleExceededError } from "@/contexts/app/auth/domain/errors/auth-email-password-reset-throttle-exceeded.error"
+import { AuthEmailInvalidToResetPassword } from "@/contexts/app/auth/domain/errors/auth-email-invalid-to-reset-password"
+import { AuthCodeExpiredToResetPasswordError } from "@/contexts/app/auth/domain/errors/auth-code-expired-to-reset-password.error"
+import { AuthCodeExpiredToVerifyEmailError } from "@/contexts/app/auth/domain/errors/auth-code-expired-to-verify-email.error"
+import { AuthCodeInvalidToResetPasswordError } from "@/contexts/app/auth/domain/errors/auth-code-invalid-to-reset-password.error"
+import { AuthCodeInvalidToVerifyEmailError } from "@/contexts/app/auth/domain/errors/auth-code-invalid-to-verify-email.error"
+import { AuthCodeReachedLimitTriesToResetPasswordError } from "@/contexts/app/auth/domain/errors/auth-code-reached-limit-tries-to-reset-password.error"
+import { AuthCodeReachedLimitTriesToVerifyEmailError } from "@/contexts/app/auth/domain/errors/auth-code-reached-limit-tries-to-verify-email.error"
 
 @Catch(Error)
 export class AuthExceptionHandler extends BaseExceptionFilter {
@@ -47,6 +56,33 @@ export class AuthExceptionHandler extends BaseExceptionFilter {
       httpException = new BadRequestException(exception.message)
     } else if (exception instanceof AuthEmailNotVerifiedError) {
       httpException = new UnauthorizedException(exception.message)
+    } else if (exception instanceof AuthInvalidEmailOrCodeToResetPassword) {
+      httpException = new BadRequestException(exception.message)
+    } else if (
+      exception instanceof AuthEmailPasswordResetThrottleExceededError
+    ) {
+      httpException = new HttpException(
+        exception.message,
+        HttpStatus.TOO_MANY_REQUESTS
+      )
+    } else if (exception instanceof AuthEmailInvalidToResetPassword) {
+      httpException = new BadRequestException(exception.message)
+    } else if (exception instanceof AuthCodeExpiredToResetPasswordError) {
+      httpException = new BadRequestException(exception.message)
+    } else if (exception instanceof AuthCodeExpiredToVerifyEmailError) {
+      httpException = new BadRequestException(exception.message)
+    } else if (exception instanceof AuthCodeInvalidToResetPasswordError) {
+      httpException = new BadRequestException(exception.message)
+    } else if (exception instanceof AuthCodeInvalidToVerifyEmailError) {
+      httpException = new BadRequestException(exception.message)
+    } else if (
+      exception instanceof AuthCodeReachedLimitTriesToResetPasswordError
+    ) {
+      httpException = new BadRequestException(exception.message)
+    } else if (
+      exception instanceof AuthCodeReachedLimitTriesToVerifyEmailError
+    ) {
+      httpException = new BadRequestException(exception.message)
     }
 
     super.catch(httpException ?? exception, host)

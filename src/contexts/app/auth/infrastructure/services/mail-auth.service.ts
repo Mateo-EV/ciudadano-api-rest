@@ -15,4 +15,15 @@ export class MailAuthService implements MailAuthContract {
 
     await this.nodeMailerService.sendMail(email, "Email Verification", html)
   }
+
+  async sendPasswordResetCodeEmail(email: string, code: string): Promise<void> {
+    const html = `
+      <p>Hi,</p>
+      <p>Your password reset code is: <strong>${code}</strong></p>
+      <p>If you did not request a password reset, please ignore this email.</p>
+      <p>Thank you!</p>
+    `
+
+    await this.nodeMailerService.sendMail(email, "Password Reset Request", html)
+  }
 }

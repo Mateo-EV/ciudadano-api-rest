@@ -20,6 +20,6 @@ export class ResendEmailVerificationCodeUseCase
       throw new AuthEmailInvalidToVerify()
     }
 
-    void this.mailVerificationManager.sendVerificationCode(email, user.id)
+    await this.mailVerificationManager.sendVerificationCode(email, user.id)
   }
 }

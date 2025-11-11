@@ -5,6 +5,9 @@ import { AuthInvalidEmailOrCodeToVerify } from "../../domain/errors/auth-invalid
 import { AuthEmailAlreadyVerified } from "../../domain/errors/auth-email-already-verified"
 import { VerificationCodeRepository } from "../../domain/contracts/repositories/verification-code.repository"
 import { VerificationCode } from "../../domain/entities/verification-code"
+import { AuthCodeInvalidToVerifyEmailError } from "@/contexts/app/auth/domain/errors/auth-code-invalid-to-verify-email.error"
+import { AuthCodeExpiredToVerifyEmailError } from "@/contexts/app/auth/domain/errors/auth-code-expired-to-verify-email.error"
+import { AuthCodeReachedLimitTriesToVerifyEmailError } from "@/contexts/app/auth/domain/errors/auth-code-reached-limit-tries-to-verify-email.error"
 
 interface VerifyEmailUseCaseInput {
   code: string
@@ -34,40 +37,35 @@ export class VerifyEmailUseCase
     }
 
     const verificationCode =
-      await this.verificationCodeRepository.findByUserIdAndCode(
-        user.id,
-        input.code
-      )
+      await this.verificationCodeRepository.findLatestByUserId(user.id)
 
     if (!verificationCode) {
       throw new AuthInvalidEmailOrCodeToVerify()
     }
 
-    const isCodeValid = await this.validateVerificationCode(verificationCode)
-
-    if (!isCodeValid) {
+    if (verificationCode.code !== input.code) {
       await this.verificationCodeRepository.incrementTries(verificationCode.id)
 
-      throw new AuthInvalidEmailOrCodeToVerify()
+      throw new AuthCodeInvalidToVerifyEmailError(input.email)
     }
+
+    await this.validateVerificationCode(verificationCode, input.email)
 
     await this.userRepository.markEmailAsVerified(user.id)
   }
 
   private async validateVerificationCode(
-    verificationCode: VerificationCode
-  ): Promise<boolean> {
+    verificationCode: VerificationCode,
+    email: string
+  ): Promise<void> {
     if (verificationCode.expiresAt < new Date()) {
       await this.verificationCodeRepository.delete(verificationCode.id)
-
-      return false
+      throw new AuthCodeExpiredToVerifyEmailError(email)
     }
 
     if (verificationCode.tries >= this.MAX_VERIFICATION_CODE_TRIES) {
       await this.verificationCodeRepository.delete(verificationCode.id)
-      return false
+      throw new AuthCodeReachedLimitTriesToVerifyEmailError(email)
     }
-
-    return true
   }
 }

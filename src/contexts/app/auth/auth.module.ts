@@ -23,6 +23,11 @@ import { MailAuthService } from "./infrastructure/services/mail-auth.service"
 import { TokenService } from "./infrastructure/services/token.service"
 import { UpdateProfileUseCase } from "./application/usecases/update-profile.use-case"
 import { IncidentModule } from "@/contexts/app/incidents/infrastructure/incident.module"
+import { ResetPasswordUseCase } from "@/contexts/app/auth/application/usecases/reset-password.use-case"
+import { SendPasswordResetCodeEmailUseCase } from "@/contexts/app/auth/application/usecases/send-password-reset-code-email.use-case"
+import { MailPasswordResetManager } from "@/contexts/app/auth/application/managers/mail-password-reset.manager"
+import { PasswordResetCodeRepository } from "@/contexts/app/auth/domain/contracts/repositories/password-reset-code.repository"
+import { PrismaPasswordResetCodeRepository } from "@/contexts/app/auth/infrastructure/repositories/prisma-password-reset-code.repository"
 
 @Module({
   imports: [
@@ -46,8 +51,11 @@ import { IncidentModule } from "@/contexts/app/incidents/infrastructure/incident
     ResendEmailVerificationCodeUseCase,
     GetAuthProfileUseCase,
     UpdateProfileUseCase,
+    ResetPasswordUseCase,
+    SendPasswordResetCodeEmailUseCase,
     // MANAGERS
     MailVerificationManager,
+    MailPasswordResetManager,
     // CONTRACTS
     { provide: HashContract, useClass: HashService },
     { provide: TokenContract, useClass: TokenService },
@@ -55,6 +63,10 @@ import { IncidentModule } from "@/contexts/app/incidents/infrastructure/incident
     {
       provide: VerificationCodeRepository,
       useClass: PrismaVerificationCodeRepository
+    },
+    {
+      provide: PasswordResetCodeRepository,
+      useClass: PrismaPasswordResetCodeRepository
     },
     // FILTERS
     { provide: APP_FILTER, useClass: AuthExceptionHandler },

@@ -24,11 +24,23 @@ model User {
   password       String
   created_at     DateTime @default(now())
 
-  verificationCode VerificationCode?
-  incidents        Incident[]
+  verificationCode  VerificationCode?
+  passwordResetCode PasswordResetCode?
+  incidents         Incident[]
 }
 
 model VerificationCode {
+  id         Int      @id @default(autoincrement())
+  user_id    String   @unique
+  code       String
+  created_at DateTime @default(now())
+  expires_at DateTime
+  tries      Int      @default(0)
+
+  user User @relation(fields: [user_id], references: [id])
+}
+
+model PasswordResetCode {
   id         Int      @id @default(autoincrement())
   user_id    String   @unique
   code       String
