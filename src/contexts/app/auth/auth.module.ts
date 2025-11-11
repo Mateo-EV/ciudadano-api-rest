@@ -21,10 +21,13 @@ import { JwtStrategy } from "./infrastructure/rest/strategies/jwt.strategy"
 import { HashService } from "./infrastructure/services/hash.service"
 import { MailAuthService } from "./infrastructure/services/mail-auth.service"
 import { TokenService } from "./infrastructure/services/token.service"
+import { UpdateProfileUseCase } from "./application/usecases/update-profile.use-case"
+import { IncidentModule } from "@/contexts/app/incidents/infrastructure/incident.module"
 
 @Module({
   imports: [
     UserModule,
+    IncidentModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
@@ -42,6 +45,7 @@ import { TokenService } from "./infrastructure/services/token.service"
     VerifyEmailUseCase,
     ResendEmailVerificationCodeUseCase,
     GetAuthProfileUseCase,
+    UpdateProfileUseCase,
     // MANAGERS
     MailVerificationManager,
     // CONTRACTS

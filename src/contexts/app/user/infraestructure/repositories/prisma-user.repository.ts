@@ -10,7 +10,7 @@ export class PrismaUserRepository implements UserRepository {
 
   async create(user: User): Promise<User> {
     const createdUserPrisma = await this.prismaService.user.create({
-      data: UserMapper.prisma.toPrisma(user)
+      data: UserMapper.prisma.toCreatePrisma(user)
     })
 
     return UserMapper.prisma.toDomain(createdUserPrisma)
@@ -42,10 +42,13 @@ export class PrismaUserRepository implements UserRepository {
     return UserMapper.prisma.toDomain(prismaUser)
   }
 
-  async update(user: User): Promise<User> {
+  async updateById(
+    userId: string,
+    user: Partial<Omit<User, "id">>
+  ): Promise<User> {
     const updatedUserPrisma = await this.prismaService.user.update({
-      where: { id: user.id },
-      data: UserMapper.prisma.toPrisma(user)
+      where: { id: userId },
+      data: UserMapper.prisma.toUpdatePrisma(user)
     })
 
     return UserMapper.prisma.toDomain(updatedUserPrisma)

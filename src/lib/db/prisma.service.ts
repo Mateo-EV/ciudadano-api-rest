@@ -1,6 +1,7 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from "@nestjs/common"
 import { ConfigService } from "@nestjs/config"
 import { PrismaClient } from "@prisma/client"
+import cuid from "cuid"
 
 @Injectable()
 export class PrismaService
@@ -14,6 +15,10 @@ export class PrismaService
           ? ["query", "warn", "error"]
           : ["error"]
     })
+  }
+
+  generateCuid(): string {
+    return cuid()
   }
 
   async onModuleInit() {

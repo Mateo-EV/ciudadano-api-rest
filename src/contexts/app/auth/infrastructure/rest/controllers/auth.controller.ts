@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Put,
   Req,
   UsePipes
 } from "@nestjs/common"
@@ -30,6 +31,11 @@ import { Public } from "../../decorators/public"
 import type { Request } from "express"
 import { User } from "@/contexts/app/user/domain/entities/user"
 import { ApiBearerAuth } from "@nestjs/swagger"
+import {
+  UpdateProfileRequestDto,
+  updateProfileRequestSchema
+} from "../requests/update-profile-request.dto"
+import { UpdateProfileUseCase } from "../../../application/usecases/update-profile.use-case"
 
 @Controller("auth")
 export class AuthController {
@@ -37,7 +43,8 @@ export class AuthController {
     private readonly loginAuthUseCase: LoginAuthUseCase,
     private readonly registerAuthUseCase: RegisterAuthUserCase,
     private readonly verifyEmailUseCase: VerifyEmailUseCase,
-    private readonly resendEmailVerificationCodeUseCase: ResendEmailVerificationCodeUseCase
+    private readonly resendEmailVerificationCodeUseCase: ResendEmailVerificationCodeUseCase,
+    private readonly updateProfileUseCase: UpdateProfileUseCase
   ) {}
 
   @Post("login")
@@ -122,6 +129,35 @@ export class AuthController {
         isEmailVerified: user.isEmailVerified,
         phone: user.phone
       }
+    }
+  }
+
+  @Put("profile")
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @UsePipes(new ZodValidationPipe(updateProfileRequestSchema))
+  async updateProfile(
+    @Body() updateProfileRequestDto: UpdateProfileRequestDto,
+    @Req() req: Request
+  ) {
+    const user = req.user as User
+
+    const userUpdated = await this.updateProfileUseCase.execute({
+      userData: updateProfileRequestDto,
+      userId: user.id
+    })
+
+    return {
+      data: {
+        id: userUpdated.id,
+        firstName: userUpdated.firstName,
+        lastName: userUpdated.lastName,
+        dni: userUpdated.dni,
+        email: userUpdated.email,
+        isEmailVerified: userUpdated.isEmailVerified,
+        phone: userUpdated.phone
+      },
+      message: "Perfil actualizado exitosamente"
     }
   }
 }

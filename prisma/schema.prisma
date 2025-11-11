@@ -25,6 +25,7 @@ model User {
   created_at     DateTime @default(now())
 
   verificationCode VerificationCode?
+  incidents        Incident[]
 }
 
 model VerificationCode {
@@ -34,6 +35,19 @@ model VerificationCode {
   created_at DateTime @default(now())
   expires_at DateTime
   tries      Int      @default(0)
+
+  user User @relation(fields: [user_id], references: [id])
+}
+
+model Incident {
+  id             String               @id @default(cuid())
+  user_id        String
+  incident_type  String
+  description    String
+  multimedia_url String
+  multimedia_key String
+  geolocation    Unsupported("POINT")
+  created_at     DateTime             @default(now())
 
   user User @relation(fields: [user_id], references: [id])
 }
