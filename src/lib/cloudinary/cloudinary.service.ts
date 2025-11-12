@@ -1,15 +1,19 @@
 import { StorageContract } from "@/core/storage/contracts/storage.contract"
 import { Injectable } from "@nestjs/common"
+import { ConfigService } from "@nestjs/config"
 import { v2 as cloudinary, UploadApiResponse } from "cloudinary"
 
 @Injectable()
 export class CloudinaryService implements StorageContract {
   private cloudinary: typeof cloudinary
 
-  constructor() {
+  constructor(private configService: ConfigService) {
     this.cloudinary = cloudinary
     this.cloudinary.config({
-      secure: true
+      secure: true,
+      api_key: this.configService.get<string>("CLOUDINARY_API_KEY"),
+      api_secret: this.configService.get<string>("CLOUDINARY_API_SECRET"),
+      cloud_name: this.configService.get<string>("CLOUDINARY_CLOUD_NAME")
     })
   }
 

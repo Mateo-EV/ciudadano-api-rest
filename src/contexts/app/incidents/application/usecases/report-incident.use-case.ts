@@ -3,6 +3,7 @@ import { Incident, IncidentType } from "../../domain/entities/incidents"
 import { UseCase } from "@/utils/use-case"
 import { IncidentRepository } from "../../domain/contracts/incident.repository"
 import { StorageContract } from "@/core/storage/contracts/storage.contract"
+import { IncidentNotifier } from "@/contexts/app/incidents/domain/contracts/incident.notifier"
 
 interface ReportIncidentInput {
   incidentType: IncidentType
@@ -21,7 +22,8 @@ export class ReportIncidentUseCase
 {
   constructor(
     private readonly incidentRepository: IncidentRepository,
-    private readonly storageContract: StorageContract
+    private readonly storageContract: StorageContract,
+    private readonly incidentNotifier: IncidentNotifier
   ) {}
 
   async execute(input: ReportIncidentInput): Promise<Incident> {
@@ -37,6 +39,9 @@ export class ReportIncidentUseCase
         userId: input.user_id
       })
     )
+
+    void this.incidentNotifier.notifyIncidentToNearbyUsers(incident)
+
     return incident
   }
 }

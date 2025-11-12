@@ -1,4 +1,12 @@
-import { Module } from "@nestjs/common"
+import { MailPasswordResetManager } from "@/contexts/app/auth/application/managers/mail-password-reset.manager"
+import { ResetPasswordUseCase } from "@/contexts/app/auth/application/usecases/reset-password.use-case"
+import { SendPasswordResetCodeEmailUseCase } from "@/contexts/app/auth/application/usecases/send-password-reset-code-email.use-case"
+import { PasswordResetCodeRepository } from "@/contexts/app/auth/domain/contracts/repositories/password-reset-code.repository"
+import { PrismaPasswordResetCodeRepository } from "@/contexts/app/auth/infrastructure/repositories/prisma-password-reset-code.repository"
+import { MainWsGateway } from "@/contexts/app/auth/infrastructure/ws/gateways/main-ws.gateway"
+import { GeolocalizationModule } from "@/contexts/app/geolocalization/infrastructure/geolocalization.module"
+import { IncidentModule } from "@/contexts/app/incidents/infrastructure/incident.module"
+import { Global, Module } from "@nestjs/common"
 import { ConfigService } from "@nestjs/config"
 import { APP_FILTER, APP_GUARD } from "@nestjs/core"
 import { JwtModule } from "@nestjs/jwt"
@@ -8,6 +16,7 @@ import { GetAuthProfileUseCase } from "./application/usecases/get-auth-profile.u
 import { LoginAuthUseCase } from "./application/usecases/login-auth.use-case"
 import { RegisterAuthUserCase } from "./application/usecases/register-auth.user-case"
 import { ResendEmailVerificationCodeUseCase } from "./application/usecases/resend-email-verification-code.use-case"
+import { UpdateProfileUseCase } from "./application/usecases/update-profile.use-case"
 import { VerifyEmailUseCase } from "./application/usecases/verify-email.use-case"
 import { HashContract } from "./domain/contracts/hash.contract"
 import { MailAuthContract } from "./domain/contracts/mail-auth.contract"
@@ -21,18 +30,13 @@ import { JwtStrategy } from "./infrastructure/rest/strategies/jwt.strategy"
 import { HashService } from "./infrastructure/services/hash.service"
 import { MailAuthService } from "./infrastructure/services/mail-auth.service"
 import { TokenService } from "./infrastructure/services/token.service"
-import { UpdateProfileUseCase } from "./application/usecases/update-profile.use-case"
-import { IncidentModule } from "@/contexts/app/incidents/infrastructure/incident.module"
-import { ResetPasswordUseCase } from "@/contexts/app/auth/application/usecases/reset-password.use-case"
-import { SendPasswordResetCodeEmailUseCase } from "@/contexts/app/auth/application/usecases/send-password-reset-code-email.use-case"
-import { MailPasswordResetManager } from "@/contexts/app/auth/application/managers/mail-password-reset.manager"
-import { PasswordResetCodeRepository } from "@/contexts/app/auth/domain/contracts/repositories/password-reset-code.repository"
-import { PrismaPasswordResetCodeRepository } from "@/contexts/app/auth/infrastructure/repositories/prisma-password-reset-code.repository"
 
+@Global()
 @Module({
   imports: [
     UserModule,
     IncidentModule,
+    GeolocalizationModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
@@ -72,8 +76,11 @@ import { PrismaPasswordResetCodeRepository } from "@/contexts/app/auth/infrastru
     { provide: APP_FILTER, useClass: AuthExceptionHandler },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     // STRATEGIES
-    JwtStrategy
+    JwtStrategy,
+    // WS GATEWAYS
+    MainWsGateway
   ],
+  exports: [MainWsGateway],
   controllers: [AuthController]
 })
 export class AuthModule {}
