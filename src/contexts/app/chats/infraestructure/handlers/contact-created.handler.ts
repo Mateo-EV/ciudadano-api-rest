@@ -1,17 +1,20 @@
 import { ContactCreatedEvent } from "@/contexts/app/chats/domain/events/contact-created.event"
-import { ChatGateway } from "@/contexts/app/chats/infraestructure/ws/gateways/chat.gateway"
 import { EventsHandler, IEventHandler } from "@nestjs/cqrs"
+import { Socket } from "socket.io"
 
 @EventsHandler(ContactCreatedEvent)
 export class ContactCreatedHandler
   implements IEventHandler<ContactCreatedEvent>
 {
-  constructor(private readonly chatGateway: ChatGateway) {}
-
   handle(event: ContactCreatedEvent) {
     const contact = event.contactCreated
 
-    this.chatGateway.server
+    const socketClient = event.payload?.socketClient
+    if (!(socketClient instanceof Socket)) {
+      return
+    }
+
+    socketClient.broadcast
       .to(`user:${contact.to_user_id}`)
       .emit("chat_contact:added", { contact })
   }

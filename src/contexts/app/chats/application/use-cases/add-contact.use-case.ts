@@ -12,6 +12,7 @@ import { EventBus } from "@nestjs/cqrs"
 type AddContactInput = {
   userContactId: string
   userOwner: User
+  payload?: Record<string, unknown>
 }
 
 @Injectable()
@@ -50,7 +51,9 @@ export class AddContactUseCase implements UseCase<AddContactInput, Contact> {
       })
     )
 
-    this.eventBus.publish(new ContactCreatedEvent(contactCreated))
+    this.eventBus.publish(
+      new ContactCreatedEvent(contactCreated, input.payload)
+    )
 
     return contactCreated
   }

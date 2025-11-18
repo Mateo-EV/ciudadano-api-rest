@@ -30,7 +30,7 @@ export class ContactMapper {
         id: prismaMessage.id,
         contact_id: prismaMessage.contact_id,
         content: prismaMessage.content,
-        created_at: prismaMessage.created_at,
+        createdAt: prismaMessage.created_at,
         sent_by_user_id: prismaMessage.user_id
       })
     },
@@ -42,7 +42,7 @@ export class ContactMapper {
         contact_id: message.contact_id,
         content: message.content,
         user_id: message.sent_by_user_id,
-        created_at: message.created_at
+        created_at: message.createdAt
       }
     }
   }

@@ -1,5 +1,8 @@
 import type { Contact } from "@/contexts/app/chats/domain/entities/contact"
 
 export class ContactCreatedEvent {
-  constructor(public readonly contactCreated: Contact) {}
+  constructor(
+    public readonly contactCreated: Contact,
+    public readonly payload?: Record<string, unknown>
+  ) {}
 }

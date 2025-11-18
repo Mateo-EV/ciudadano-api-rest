@@ -1,6 +1,6 @@
 import z from "zod"
 
-export const addContactSchemaDto = z.object({
+export const addContactSchema = z.object({
   user_contact_id: z.string().nonempty("El contacto es obligatorio")
 })
 

@@ -1,8 +1,8 @@
 import { Message } from "@/contexts/app/chats/domain/entities/message"
 
 export class GroupMessage extends Message {
-  group_id: string
-  sender_id: string
+  groupId: string
+  senderId: string
 
   static create(props: Partial<GroupMessage>): GroupMessage {
     const groupMessage = new GroupMessage()
