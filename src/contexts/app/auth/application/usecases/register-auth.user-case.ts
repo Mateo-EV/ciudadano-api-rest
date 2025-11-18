@@ -13,6 +13,7 @@ interface RegisterAuthUserCaseInput {
   firstName: string
   lastName: string
   dni: string
+  phone: string
 }
 
 @Injectable()
@@ -48,7 +49,8 @@ export class RegisterAuthUserCase
         password: hashedPassword,
         firstName: input.firstName,
         lastName: input.lastName,
-        dni: input.dni
+        dni: input.dni,
+        phone: input.phone
       })
     )
 

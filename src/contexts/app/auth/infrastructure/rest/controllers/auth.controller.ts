@@ -90,7 +90,8 @@ export class AuthController {
           firstName: user.firstName,
           lastName: user.lastName,
           dni: user.dni,
-          email: user.email
+          email: user.email,
+          phone: user.phone
         }
       },
       message: "Registro exitoso, verifica tu correo electrónico"
