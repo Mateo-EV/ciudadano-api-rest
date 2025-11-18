@@ -4,6 +4,8 @@ import { SendPasswordResetCodeEmailUseCase } from "@/contexts/app/auth/applicati
 import { PasswordResetCodeRepository } from "@/contexts/app/auth/domain/contracts/repositories/password-reset-code.repository"
 import { PrismaPasswordResetCodeRepository } from "@/contexts/app/auth/infrastructure/repositories/prisma-password-reset-code.repository"
 import { MainWsGateway } from "@/contexts/app/auth/infrastructure/ws/gateways/main-ws.gateway"
+import { ValidateUserIsAuthenticatedInWsHelper } from "@/contexts/app/auth/infrastructure/ws/helper/validate-user-is-authenticated-in-ws.helper"
+import { ChatModule } from "@/contexts/app/chats/infraestructure/chat.module"
 import { GeolocalizationModule } from "@/contexts/app/geolocalization/infrastructure/geolocalization.module"
 import { IncidentModule } from "@/contexts/app/incidents/infrastructure/incident.module"
 import { Global, Module } from "@nestjs/common"
@@ -37,6 +39,7 @@ import { TokenService } from "./infrastructure/services/token.service"
     UserModule,
     IncidentModule,
     GeolocalizationModule,
+    ChatModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
@@ -78,9 +81,11 @@ import { TokenService } from "./infrastructure/services/token.service"
     // STRATEGIES
     JwtStrategy,
     // WS GATEWAYS
-    MainWsGateway
+    MainWsGateway,
+    // HELPERS
+    ValidateUserIsAuthenticatedInWsHelper
   ],
-  exports: [MainWsGateway],
+  exports: [MainWsGateway, ValidateUserIsAuthenticatedInWsHelper],
   controllers: [AuthController]
 })
 export class AuthModule {}

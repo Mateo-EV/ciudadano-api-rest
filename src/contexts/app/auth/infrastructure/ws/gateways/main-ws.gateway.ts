@@ -11,7 +11,7 @@ import {
 } from "@nestjs/websockets"
 import { Server, Socket } from "socket.io"
 
-export interface AuthenticatedSocket extends Socket {
+export interface AuthenticatedSocketWithGeolocalization extends Socket {
   geolocalization: Geolocalization
 }
 
@@ -75,7 +75,7 @@ export class MainWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return client.disconnect()
     }
 
-    const clientAsAuthSocket = client as AuthenticatedSocket
+    const clientAsAuthSocket = client as AuthenticatedSocketWithGeolocalization
 
     await this.geolocalizationWsGateway.handleConnection(
       clientAsAuthSocket.geolocalization.user,
@@ -86,7 +86,7 @@ export class MainWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   async handleDisconnect(client: Socket) {
-    const clientAsAuthSocket = client as AuthenticatedSocket
+    const clientAsAuthSocket = client as AuthenticatedSocketWithGeolocalization
     if (!clientAsAuthSocket.geolocalization) return
 
     await this.geolocalizationWsGateway.handleDisconnect(

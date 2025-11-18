@@ -17,7 +17,7 @@ model User {
   id             String   @id @default(cuid())
   first_name     String
   last_name      String
-  phone          String?
+  phone          String?  @unique
   email          String   @unique
   email_verified Boolean  @default(false)
   dni            String   @unique
@@ -27,6 +27,10 @@ model User {
   verificationCode  VerificationCode?
   passwordResetCode PasswordResetCode?
   incidents         Incident[]
+
+  contactMessages ContactMessage[]
+  contactsFrom    Contact[]        @relation("from")
+  contactsTo      Contact[]        @relation("to")
 }
 
 model VerificationCode {
@@ -62,4 +66,31 @@ model Incident {
   created_at     DateTime             @default(now())
 
   user User @relation(fields: [user_id], references: [id])
+}
+
+model Contact {
+  id         String   @id @default(cuid())
+  from_id    String
+  to_id      String
+  created_at DateTime @default(now())
+
+  from User @relation(fields: [from_id], references: [id], name: "from")
+  to   User @relation(fields: [to_id], references: [id], name: "to")
+
+  contactMessages ContactMessage[]
+
+  @@unique([from_id, to_id])
+}
+
+model ContactMessage {
+  id         String   @id @default(cuid())
+  user_id    String
+  contact_id String
+  content    String   @db.Text
+  created_at DateTime @default(now())
+
+  user    User    @relation(fields: [user_id], references: [id])
+  contact Contact @relation(fields: [contact_id], references: [id])
+
+  @@index([created_at])
 }

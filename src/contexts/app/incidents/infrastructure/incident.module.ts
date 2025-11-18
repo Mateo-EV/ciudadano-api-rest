@@ -6,7 +6,9 @@ import { IncidentRepository } from "@/contexts/app/incidents/domain/contracts/in
 import { SocketIncidentNotifier } from "@/contexts/app/incidents/infrastructure/notifiers/socket-incident.notifier"
 import { PrismaIncidentRepository } from "@/contexts/app/incidents/infrastructure/repositories/prisma-incident.repository"
 import { IncidentController } from "@/contexts/app/incidents/infrastructure/rest/controllers/incident.controller"
+import { IncidentExceptionFilter } from "@/contexts/app/incidents/infrastructure/rest/filters/incident-exception.filter"
 import { Module } from "@nestjs/common"
+import { APP_FILTER } from "@nestjs/core"
 
 @Module({
   providers: [
@@ -16,7 +18,8 @@ import { Module } from "@nestjs/common"
     UnreportIncidentUseCase,
     // CONTRACTS
     { provide: IncidentRepository, useClass: PrismaIncidentRepository },
-    { provide: IncidentNotifier, useClass: SocketIncidentNotifier }
+    { provide: IncidentNotifier, useClass: SocketIncidentNotifier },
+    { provide: APP_FILTER, useClass: IncidentExceptionFilter }
   ],
   controllers: [IncidentController],
   exports: [IncidentRepository]
