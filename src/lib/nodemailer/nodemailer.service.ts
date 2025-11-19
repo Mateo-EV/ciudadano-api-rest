@@ -30,7 +30,10 @@ export class NodeMailerService {
   ): Promise<SMTPTransport.SentMessageInfo> {
     try {
       const info = await this.transporter.sendMail({
-        from: `Ciudadano App <${this.configService.get<string>("MAIL_USER")}>`,
+        from: {
+          address: this.configService.get<string>("MAIL_ADDRESS") ?? "",
+          name: "Ciudadano App"
+        },
         to,
         subject,
         html
