@@ -31,6 +31,8 @@ import { JwtStrategy } from "./infrastructure/rest/strategies/jwt.strategy"
 import { HashService } from "./infrastructure/services/hash.service"
 import { MailAuthService } from "./infrastructure/services/mail-auth.service"
 import { TokenService } from "./infrastructure/services/token.service"
+import { AlertModule } from "@/contexts/app/alerts/infrastructure/alert.module"
+import { PushNotificationModule } from "@/contexts/app/push_notifications/infraestructure/push_notification.module"
 
 @Global()
 @Module({
@@ -39,6 +41,8 @@ import { TokenService } from "./infrastructure/services/token.service"
     IncidentModule,
     GeolocalizationModule,
     ChatModule,
+    AlertModule,
+    PushNotificationModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({

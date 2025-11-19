@@ -34,6 +34,8 @@ model User {
 
   groupUsers    GroupUser[]
   groupMessages GroupMessage[]
+  pushTokens    PushToken[]
+  alerts        Alert[]
 }
 
 model VerificationCode {
@@ -127,4 +129,28 @@ model GroupMessage {
 
   user  User  @relation(fields: [user_id], references: [id])
   group Group @relation(fields: [group_id], references: [id])
+}
+
+model PushToken {
+  id         String   @id @default(cuid())
+  user_id    String
+  token      String   @unique
+  platform   String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  is_active  Boolean  @default(true)
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+}
+
+model Alert {
+  id           String               @id @default(cuid())
+  user_id      String
+  geolocation  Unsupported("POINT")
+  active       Boolean              @default(true)
+  triggered_at DateTime             @default(now())
+
+  user User @relation(fields: [user_id], references: [id])
 }

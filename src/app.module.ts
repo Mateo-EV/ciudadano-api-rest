@@ -5,6 +5,7 @@ import { CqrsModule } from "@nestjs/cqrs"
 import { AuthModule } from "./contexts/app/auth/auth.module"
 import { PrismaModule } from "./lib/db/prisma.module"
 import { NodeMailerModule } from "./lib/nodemailer/nodemailer.module"
+import { FirebaseModule } from "@/lib/firebase/firebase.module"
 
 @Module({
   imports: [
@@ -13,7 +14,8 @@ import { NodeMailerModule } from "./lib/nodemailer/nodemailer.module"
     AuthModule,
     PrismaModule,
     NodeMailerModule,
-    CloudinaryModule
+    CloudinaryModule,
+    FirebaseModule
   ]
 })
 export class AppModule {}
