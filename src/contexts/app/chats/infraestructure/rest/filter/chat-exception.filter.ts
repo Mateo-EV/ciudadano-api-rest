@@ -8,41 +8,48 @@ import { UnuauthorizedGroupForUserError } from "@/contexts/app/chats/domain/erro
 import { UserNotFoundToCreateContactError } from "@/contexts/app/chats/domain/errors/user-not-found-to-create-contact.error"
 import { UserWithoutPhoneCannotHaveContactsError } from "@/contexts/app/chats/domain/errors/user-without-phone-cannot-have-contacts.error"
 import { UsersNotFoundToCreateGroupError } from "@/contexts/app/chats/domain/errors/users-not-found-to-create-group.error"
-import { ArgumentsHost, Catch } from "@nestjs/common"
-import { BaseWsExceptionFilter, WsException } from "@nestjs/websockets"
+import {
+  ArgumentsHost,
+  BadRequestException,
+  Catch,
+  ForbiddenException,
+  HttpException,
+  NotFoundException
+} from "@nestjs/common"
+import { BaseExceptionFilter } from "@nestjs/core"
 
 @Catch(Error)
-export class ChatExceptionFilter extends BaseWsExceptionFilter {
-  catch(exception: Error, host: ArgumentsHost): void {
-    if (exception instanceof WsException) {
+export class ChatExceptionFilter extends BaseExceptionFilter {
+  catch(exception: Error, host: ArgumentsHost) {
+    if (exception instanceof HttpException) {
       super.catch(exception, host)
       return
     }
 
-    let wsException: WsException | null = null
+    let httpException: HttpException | null = null
 
     if (exception instanceof CannotAddHimselfToGroupError) {
-      wsException = new WsException(exception.message)
+      httpException = new BadRequestException(exception.message)
     } else if (exception instanceof ContactAlreadyExistsWithTheUserError) {
-      wsException = new WsException(exception.message)
+      httpException = new BadRequestException(exception.message)
     } else if (exception instanceof ContactNotFoundError) {
-      wsException = new WsException(exception.message)
+      httpException = new NotFoundException(exception.message)
     } else if (exception instanceof GroupNotFoundError) {
-      wsException = new WsException(exception.message)
+      httpException = new NotFoundException(exception.message)
     } else if (exception instanceof MinimumMembersForGroupNotReachedError) {
-      wsException = new WsException(exception.message)
+      httpException = new BadRequestException(exception.message)
     } else if (exception instanceof UnauthorizedContactForUserError) {
-      wsException = new WsException(exception.message)
+      httpException = new ForbiddenException(exception.message)
     } else if (exception instanceof UnuauthorizedGroupForUserError) {
-      wsException = new WsException(exception.message)
+      httpException = new ForbiddenException(exception.message)
     } else if (exception instanceof UserNotFoundToCreateContactError) {
-      wsException = new WsException(exception.message)
+      httpException = new NotFoundException(exception.message)
     } else if (exception instanceof UserWithoutPhoneCannotHaveContactsError) {
-      wsException = new WsException(exception.message)
+      httpException = new BadRequestException(exception.message)
     } else if (exception instanceof UsersNotFoundToCreateGroupError) {
-      wsException = new WsException(exception.message)
+      httpException = new NotFoundException(exception.message)
     }
 
-    super.catch(wsException ?? exception, host)
+    super.catch(httpException ?? exception, host)
   }
 }

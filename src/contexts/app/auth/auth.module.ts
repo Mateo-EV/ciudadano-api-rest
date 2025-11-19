@@ -3,7 +3,6 @@ import { ResetPasswordUseCase } from "@/contexts/app/auth/application/usecases/r
 import { SendPasswordResetCodeEmailUseCase } from "@/contexts/app/auth/application/usecases/send-password-reset-code-email.use-case"
 import { PasswordResetCodeRepository } from "@/contexts/app/auth/domain/contracts/repositories/password-reset-code.repository"
 import { PrismaPasswordResetCodeRepository } from "@/contexts/app/auth/infrastructure/repositories/prisma-password-reset-code.repository"
-import { MainWsGateway } from "@/contexts/app/auth/infrastructure/ws/gateways/main-ws.gateway"
 import { ValidateUserIsAuthenticatedInWsHelper } from "@/contexts/app/auth/infrastructure/ws/helper/validate-user-is-authenticated-in-ws.helper"
 import { ChatModule } from "@/contexts/app/chats/infraestructure/chat.module"
 import { GeolocalizationModule } from "@/contexts/app/geolocalization/infrastructure/geolocalization.module"
@@ -80,12 +79,10 @@ import { TokenService } from "./infrastructure/services/token.service"
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     // STRATEGIES
     JwtStrategy,
-    // WS GATEWAYS
-    MainWsGateway,
     // HELPERS
     ValidateUserIsAuthenticatedInWsHelper
   ],
-  exports: [MainWsGateway, ValidateUserIsAuthenticatedInWsHelper],
+  exports: [ValidateUserIsAuthenticatedInWsHelper],
   controllers: [AuthController]
 })
 export class AuthModule {}

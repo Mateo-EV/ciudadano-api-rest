@@ -4,23 +4,23 @@ import { User } from "@/contexts/app/user/domain/entities/user"
 import { UseCase } from "@/utils/use-case"
 import { Injectable } from "@nestjs/common"
 
-type GetPossibleContactsByPhoneInput = {
+type GetPossibleContactsByPhonesInput = {
   phones: string[]
   userSearching: User
 }
 
-type GetPossibleContactsByPhoneOutput = Contact[]
+type GetPossibleContactsByPhonesOutput = Contact[]
 
 @Injectable()
-export class GetPossibleContactsByPhoneUseCase
+export class GetPossibleContactsByPhonesUseCase
   implements
-    UseCase<GetPossibleContactsByPhoneInput, GetPossibleContactsByPhoneOutput>
+    UseCase<GetPossibleContactsByPhonesInput, GetPossibleContactsByPhonesOutput>
 {
   constructor(private readonly contactRepository: ContactRepository) {}
 
   async execute(
-    input: GetPossibleContactsByPhoneInput
-  ): Promise<GetPossibleContactsByPhoneOutput> {
+    input: GetPossibleContactsByPhonesInput
+  ): Promise<GetPossibleContactsByPhonesOutput> {
     const possiblesUserContacts =
       await this.contactRepository.findPossibleContactsByPhones(
         input.phones,

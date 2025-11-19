@@ -2,7 +2,7 @@ import { AddContactUseCase } from "@/contexts/app/chats/application/use-cases/ad
 import { CreateGroupUseCase } from "@/contexts/app/chats/application/use-cases/create-group.use-case"
 import { GetContactByIdUseCase } from "@/contexts/app/chats/application/use-cases/get-contact-by-id.use-case"
 import { GetGroupByIdUseCase } from "@/contexts/app/chats/application/use-cases/get-group-by-id.use-case"
-import { GetPossibleContactsByPhoneUseCase } from "@/contexts/app/chats/application/use-cases/get-possible-contacts-by-phone.use-case"
+import { GetPossibleContactsByPhonesUseCase } from "@/contexts/app/chats/application/use-cases/get-possible-contacts-by-phones.use-case"
 import { SendMessageToContactUseCase } from "@/contexts/app/chats/application/use-cases/send-message-to-contact.use-case"
 import { SendMessageToGroupUseCase } from "@/contexts/app/chats/application/use-cases/send-message-to-group.use-case"
 import { ContactRepository } from "@/contexts/app/chats/domain/contracts/contact.repository"
@@ -20,7 +20,7 @@ import { Module } from "@nestjs/common"
     // USECASES
     AddContactUseCase,
     GetContactByIdUseCase,
-    GetPossibleContactsByPhoneUseCase,
+    GetPossibleContactsByPhonesUseCase,
     SendMessageToContactUseCase,
     CreateGroupUseCase,
     GetGroupByIdUseCase,
