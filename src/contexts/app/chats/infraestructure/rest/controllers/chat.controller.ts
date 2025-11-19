@@ -1,13 +1,15 @@
 import { GetContactMessagesCursorPaginatedByContactIdUseCase } from "@/contexts/app/chats/application/use-cases/get-contact-messages-cursor-paginated-by-contact-id.use-case"
 import { GetGroupMessagesCursorPaginatedByGroupIdUseCase } from "@/contexts/app/chats/application/use-cases/get-group-messages-cursor-paginated-by-contact-id.use-case"
 import { GetPossibleContactsByPhonesUseCase } from "@/contexts/app/chats/application/use-cases/get-possible-contacts-by-phones.use-case"
+import { ChatExceptionFilter } from "@/contexts/app/chats/infraestructure/rest/filter/chat-exception.filter"
 import { getPossibleContactsByPhonesRequestSchema } from "@/contexts/app/chats/infraestructure/rest/request/get-possible-contacts-by-phones-request.dto"
 import { User } from "@/contexts/app/user/domain/entities/user"
 import { ZodValidationPipe } from "@/lib/zod/zod-validation.pipe"
-import { Controller, Get, Param, Query, Req } from "@nestjs/common"
-import { ApiBearerAuth } from "@nestjs/swagger"
+import { Controller, Get, Param, Query, Req, UseFilters } from "@nestjs/common"
+import { ApiBearerAuth, ApiQuery } from "@nestjs/swagger"
 
 @Controller("chats")
+@UseFilters(ChatExceptionFilter)
 export class ChatController {
   constructor(
     protected readonly getPossibleContactsByPhonesUseCase: GetPossibleContactsByPhonesUseCase,
@@ -33,15 +35,23 @@ export class ChatController {
         userSearching: user
       })
 
-    return { data: possibleContacts }
+    return {
+      data: possibleContacts.map(contact => ({
+        id: contact.id,
+        firstName: contact.firstName,
+        lastName: contact.lastName,
+        phone: contact.phone
+      }))
+    }
   }
 
   @Get("contacts/:contactId/messages")
   @ApiBearerAuth()
+  @ApiQuery({ name: "cursor", required: false })
   async getContactMessagesCursorPaginatedByContactId(
     @Req() req: Express.Request,
-    @Query("cursor") cursor: string,
-    @Param("contactId") contactId: string
+    @Param("contactId") contactId: string,
+    @Query("cursor") cursor?: string
   ) {
     const user = req.user as User
 
@@ -57,10 +67,11 @@ export class ChatController {
 
   @Get("groups/:groupId/messages")
   @ApiBearerAuth()
+  @ApiQuery({ name: "cursor", required: false })
   async getGroupMessagesCursorPaginatedByGroupId(
     @Req() req: Express.Request,
-    @Query("cursor") cursor: string,
-    @Param("groupId") groupId: string
+    @Param("groupId") groupId: string,
+    @Query("cursor") cursor?: string | null
   ) {
     const user = req.user as User
     const groupMessages =

@@ -1,6 +1,7 @@
 import { GetNearbyIncidentsToLocationUseCase } from "@/contexts/app/incidents/application/usecases/get-nearby-incidents-to-location.use-case"
 import { ReportIncidentUseCase } from "@/contexts/app/incidents/application/usecases/report-incident.use-case"
 import { UnreportIncidentUseCase } from "@/contexts/app/incidents/application/usecases/unreport-incident.use-case"
+import { IncidentExceptionFilter } from "@/contexts/app/incidents/infrastructure/rest/filters/incident-exception.filter"
 import {
   ReportIncidentRequestDto,
   reportIncidentRequestSchema
@@ -18,12 +19,14 @@ import {
   Query,
   Req,
   UploadedFile,
+  UseFilters,
   UseInterceptors
 } from "@nestjs/common"
 import { FileInterceptor } from "@nestjs/platform-express"
 import { ApiBearerAuth, ApiConsumes } from "@nestjs/swagger"
 
 @Controller("incidents")
+@UseFilters(IncidentExceptionFilter)
 export class IncidentController {
   constructor(
     private readonly getNearbyIncidentsToLocationUseCase: GetNearbyIncidentsToLocationUseCase,

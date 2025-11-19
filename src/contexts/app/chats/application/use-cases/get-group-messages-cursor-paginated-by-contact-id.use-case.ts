@@ -8,7 +8,7 @@ import { Injectable } from "@nestjs/common"
 
 type GetGroupMessagesCursorPaginatedByGroupIdInput = {
   groupId: string
-  cursor?: string
+  cursor?: string | null
   userOwner: User
 }
 

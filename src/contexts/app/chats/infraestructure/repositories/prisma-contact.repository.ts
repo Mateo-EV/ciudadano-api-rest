@@ -56,30 +56,9 @@ export class PrismaContactRepository implements ContactRepository {
     )
   }
 
-  async findPossibleContactsByPhones(
-    phones: string[],
-    userSearchingId: string
-  ): Promise<Contact[]> {
-    const users = await this.prismaService.user.findMany({
-      where: {
-        phone: { in: phones },
-        id: { not: userSearchingId }
-      }
-    })
-
-    return users.map(user =>
-      Contact.create({
-        id: user.id,
-        created_at: new Date(),
-        from_user_id: userSearchingId,
-        to_user_id: user.id
-      })
-    )
-  }
-
   async findMessagesCursorPaginatedByContact(
     contact: Contact,
-    cursor?: string
+    cursor?: string | null
   ): Promise<CursorPaginated<ContactMessage>> {
     const prismaContactMessages =
       await this.prismaService.contactMessage.findMany({

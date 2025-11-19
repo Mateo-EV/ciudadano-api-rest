@@ -8,6 +8,6 @@ export abstract class GroupRepository {
   abstract createMessage(groupMessage: GroupMessage): Promise<GroupMessage>
   abstract findMessagesCursorPaginatedByGroupId(
     groupId: string,
-    cursor?: string
+    cursor?: string | null
   ): Promise<CursorPaginated<GroupMessage>>
 }

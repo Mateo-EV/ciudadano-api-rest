@@ -5,9 +5,7 @@ import { IncidentRepository } from "@/contexts/app/incidents/domain/contracts/in
 import { IncidentReportedHandler } from "@/contexts/app/incidents/infrastructure/handlers/incident-reported.handler"
 import { PrismaIncidentRepository } from "@/contexts/app/incidents/infrastructure/repositories/prisma-incident.repository"
 import { IncidentController } from "@/contexts/app/incidents/infrastructure/rest/controllers/incident.controller"
-import { IncidentExceptionFilter } from "@/contexts/app/incidents/infrastructure/rest/filters/incident-exception.filter"
 import { Module } from "@nestjs/common"
-import { APP_FILTER } from "@nestjs/core"
 
 @Module({
   providers: [
@@ -17,7 +15,6 @@ import { APP_FILTER } from "@nestjs/core"
     UnreportIncidentUseCase,
     // CONTRACTS
     { provide: IncidentRepository, useClass: PrismaIncidentRepository },
-    { provide: APP_FILTER, useClass: IncidentExceptionFilter },
     // HANDLERS
     IncidentReportedHandler
   ],

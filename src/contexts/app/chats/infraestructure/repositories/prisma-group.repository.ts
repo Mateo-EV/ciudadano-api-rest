@@ -44,7 +44,7 @@ export class PrismaGroupRepository implements GroupRepository {
 
   async findMessagesCursorPaginatedByGroupId(
     groupId: string,
-    cursor?: string
+    cursor?: string | null
   ): Promise<CursorPaginated<GroupMessage>> {
     const prismaMessages = await this.prismaService.groupMessage.findMany({
       where: { group_id: groupId },

@@ -12,7 +12,7 @@ import { ArgumentsHost, Catch } from "@nestjs/common"
 import { BaseWsExceptionFilter, WsException } from "@nestjs/websockets"
 
 @Catch(Error)
-export class ChatExceptionFilter extends BaseWsExceptionFilter {
+export class ChatExceptionWsFilter extends BaseWsExceptionFilter {
   catch(exception: Error, host: ArgumentsHost): void {
     if (exception instanceof WsException) {
       super.catch(exception, host)

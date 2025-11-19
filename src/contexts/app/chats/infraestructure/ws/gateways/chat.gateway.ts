@@ -10,7 +10,7 @@ import { SendMessageToContactUseCase } from "@/contexts/app/chats/application/us
 import { SendMessageToGroupUseCase } from "@/contexts/app/chats/application/use-cases/send-message-to-group.use-case"
 import { Contact } from "@/contexts/app/chats/domain/entities/contact"
 import { Group } from "@/contexts/app/chats/domain/entities/group"
-import { ChatExceptionFilter } from "@/contexts/app/chats/infraestructure/ws/filter/chat-exception-ws.filter"
+import { ChatExceptionWsFilter } from "@/contexts/app/chats/infraestructure/ws/filter/chat-exception-ws.filter"
 import {
   addContactSchema,
   AddContactSchemaDto
@@ -44,7 +44,7 @@ type JoinedChatRoomSocket = AuthenticatedSocket & {
 }
 
 @WebSocketGateway({ namespace: "chats" })
-@UseFilters(ChatExceptionFilter)
+@UseFilters(ChatExceptionWsFilter)
 export class ChatGateway implements OnGatewayConnection {
   constructor(
     private readonly validateUserIsAuthenticatedInWsHelper: ValidateUserIsAuthenticatedInWsHelper,

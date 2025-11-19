@@ -78,4 +78,18 @@ export class PrismaUserRepository implements UserRepository {
 
     return prismaUsers.map(user => UserMapper.prisma.toDomain(user))
   }
+
+  async findPossibleContactsByPhones(
+    phones: string[],
+    userSearchingId: string
+  ): Promise<User[]> {
+    const users = await this.prismaService.user.findMany({
+      where: {
+        phone: { in: phones },
+        id: { not: userSearchingId }
+      }
+    })
+
+    return users.map(user => UserMapper.prisma.toDomain(user))
+  }
 }

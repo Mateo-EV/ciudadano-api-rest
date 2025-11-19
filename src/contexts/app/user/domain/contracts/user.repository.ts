@@ -12,4 +12,8 @@ export abstract class UserRepository {
   abstract markEmailAsVerified(userId: string): Promise<void>
   abstract findByDni(dni: string): Promise<User | null>
   abstract findByIds(userIds: string[]): Promise<User[]>
+  abstract findPossibleContactsByPhones(
+    phones: string[],
+    userSearchingId: string
+  ): Promise<User[]>
 }
