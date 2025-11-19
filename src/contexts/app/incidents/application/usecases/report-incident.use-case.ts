@@ -1,9 +1,10 @@
-import { Injectable } from "@nestjs/common"
-import { Incident, IncidentType } from "../../domain/entities/incidents"
-import { UseCase } from "@/utils/use-case"
-import { IncidentRepository } from "../../domain/contracts/incident.repository"
+import { IncidentReportedEvent } from "@/contexts/app/incidents/domain/event/incident-reported.event"
 import { StorageContract } from "@/core/storage/contracts/storage.contract"
-import { IncidentNotifier } from "@/contexts/app/incidents/domain/contracts/incident.notifier"
+import { UseCase } from "@/utils/use-case"
+import { Injectable } from "@nestjs/common"
+import { EventBus } from "@nestjs/cqrs"
+import { IncidentRepository } from "../../domain/contracts/incident.repository"
+import { Incident, IncidentType } from "../../domain/entities/incidents"
 
 interface ReportIncidentInput {
   incidentType: IncidentType
@@ -23,7 +24,7 @@ export class ReportIncidentUseCase
   constructor(
     private readonly incidentRepository: IncidentRepository,
     private readonly storageContract: StorageContract,
-    private readonly incidentNotifier: IncidentNotifier
+    private readonly eventBus: EventBus
   ) {}
 
   async execute(input: ReportIncidentInput): Promise<Incident> {
@@ -40,7 +41,7 @@ export class ReportIncidentUseCase
       })
     )
 
-    void this.incidentNotifier.notifyIncidentToNearbyUsers(incident)
+    this.eventBus.publish(new IncidentReportedEvent(incident))
 
     return incident
   }
