@@ -31,7 +31,7 @@ export class CreateGroupUseCase implements UseCase<CreateGroupInput, Group> {
       throw new CannotAddHimselfToGroupError()
     }
 
-    if (input.memberIds.length < 3) {
+    if (input.memberIds.length < 2) {
       throw new MinimumMembersForGroupNotReachedError()
     }
 

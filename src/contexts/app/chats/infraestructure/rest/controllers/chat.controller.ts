@@ -1,5 +1,6 @@
 import { GetContactMessagesCursorPaginatedByContactIdUseCase } from "@/contexts/app/chats/application/use-cases/get-contact-messages-cursor-paginated-by-contact-id.use-case"
 import { GetGroupMessagesCursorPaginatedByGroupIdUseCase } from "@/contexts/app/chats/application/use-cases/get-group-messages-cursor-paginated-by-contact-id.use-case"
+import { GetGroupsByUserUseCase } from "@/contexts/app/chats/application/use-cases/get-groups-by-user.use-case"
 import { GetPossibleContactsByPhonesUseCase } from "@/contexts/app/chats/application/use-cases/get-possible-contacts-by-phones.use-case"
 import { ChatExceptionFilter } from "@/contexts/app/chats/infraestructure/rest/filter/chat-exception.filter"
 import { getPossibleContactsByPhonesRequestSchema } from "@/contexts/app/chats/infraestructure/rest/request/get-possible-contacts-by-phones-request.dto"
@@ -14,7 +15,8 @@ export class ChatController {
   constructor(
     protected readonly getPossibleContactsByPhonesUseCase: GetPossibleContactsByPhonesUseCase,
     protected readonly getContactMessagesCursorPaginatedByContactIdUseCase: GetContactMessagesCursorPaginatedByContactIdUseCase,
-    protected readonly getGroupMessagesCursorPaginatedByGroupIdUseCase: GetGroupMessagesCursorPaginatedByGroupIdUseCase
+    protected readonly getGroupMessagesCursorPaginatedByGroupIdUseCase: GetGroupMessagesCursorPaginatedByGroupIdUseCase,
+    protected readonly getGroupsByUserUseCase: GetGroupsByUserUseCase
   ) {}
 
   @Get("possible-contacts")
@@ -63,6 +65,18 @@ export class ChatController {
       })
 
     return { data: contactMessages }
+  }
+
+  @Get("groups/me")
+  @ApiBearerAuth()
+  async getGroupsByUser(@Req() req: Express.Request) {
+    const user = req.user as User
+
+    const groups = await this.getGroupsByUserUseCase.execute({
+      user
+    })
+
+    return { data: groups }
   }
 
   @Get("groups/:groupId/messages")

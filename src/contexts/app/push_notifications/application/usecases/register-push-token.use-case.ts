@@ -1,7 +1,8 @@
-import type { PushTokenRepository } from "@/contexts/app/push_notifications/domain/contracts/push-token.repository"
+import { PushTokenRepository } from "@/contexts/app/push_notifications/domain/contracts/push-token.repository"
 import type { PushTokenPlatform } from "@/contexts/app/push_notifications/domain/entities/push-token"
 import { PushToken } from "@/contexts/app/push_notifications/domain/entities/push-token"
 import type { UseCase } from "@/utils/use-case"
+import { Injectable } from "@nestjs/common"
 
 type RegisterPushTokenInput = {
   token: string
@@ -9,6 +10,7 @@ type RegisterPushTokenInput = {
   userAuthId: string
 }
 
+@Injectable()
 export class RegisterPushTokenUseCase
   implements UseCase<RegisterPushTokenInput, PushToken>
 {

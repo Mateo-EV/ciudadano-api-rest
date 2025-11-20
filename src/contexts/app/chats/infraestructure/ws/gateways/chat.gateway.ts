@@ -26,6 +26,7 @@ import {
 import { ZodWsValidationPipe } from "@/lib/zod/zod-ws-validation.pipe"
 import { UseFilters } from "@nestjs/common"
 import {
+  Ack,
   ConnectedSocket,
   MessageBody,
   OnGatewayConnection,
@@ -159,25 +160,24 @@ export class ChatGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage("chat_group:create")
-  handleCreateGroup(
+  async handleCreateGroup(
     @ConnectedSocket() client: AuthenticatedSocket,
     @MessageBody(new ZodWsValidationPipe(createGroupSchema))
-    data: CreateGroupSchemaDto
+    data: CreateGroupSchemaDto,
+    @Ack() ack: (response: any) => void
   ) {
-    return from(
-      this.createGroupUseCase.execute({
-        ownerUserId: client.user.id,
-        payload: { socketClient: client },
-        name: data.name,
-        description: data.description,
-        memberIds: data.memberIds
-      })
-    ).pipe(
-      map(group => ({
-        message: "Grupo agregado exitosamente",
-        data: group
-      }))
-    )
+    const group = await this.createGroupUseCase.execute({
+      ownerUserId: client.user.id,
+      payload: { socketClient: client },
+      name: data.name,
+      description: data.description,
+      memberIds: data.memberIds
+    })
+
+    ack({
+      message: "Grupo agregado exitosamente",
+      data: group
+    })
   }
 
   @SubscribeMessage("chat_group:send_message")
@@ -186,6 +186,8 @@ export class ChatGateway implements OnGatewayConnection {
     @MessageBody(new ZodWsValidationPipe(sendMessageSchema))
     data: SendMessageSchemaDto
   ) {
+    console.log(data)
+
     if (!client.payload.chat || !(client.payload.chat instanceof Group)) {
       throw new WsException("Debes unirte a una sala de grupo primero")
     }
@@ -202,7 +204,15 @@ export class ChatGateway implements OnGatewayConnection {
     ).pipe(
       map(chatMessage => ({
         message: "Mensaje enviado exitosamente",
-        data: chatMessage
+        data: {
+          ...chatMessage,
+          sender: {
+            id: client.user.id,
+            firstName: client.user.firstName,
+            lastName: client.user.lastName,
+            phone: client.user.phone
+          }
+        }
       }))
     )
   }
@@ -223,10 +233,13 @@ export class ChatGateway implements OnGatewayConnection {
     })
     await client.join(`chat_group:${group.id}`)
 
+    console.log(groupId)
+
     Object.assign(client, {
       payload: { chat: group, ...client.payload }
     }) as JoinedChatRoomSocket
 
+    console.log(groupId)
     return {
       message: "Te has unido a la sala del grupo",
       data: group
@@ -235,9 +248,12 @@ export class ChatGateway implements OnGatewayConnection {
 
   @SubscribeMessage("chat_group:leave")
   async handleLeaveGroupRoom(@ConnectedSocket() client: JoinedChatRoomSocket) {
+    console.log("leyendo grupo", client.payload.chat)
     if (!client.payload.chat) {
       throw new WsException("No estás en una sala de grupo")
     }
+
+    console.log("leyendo grupo", client.payload.chat)
 
     if (client.payload.chat instanceof Group) {
       await client.leave(`chat_group:${client.payload.chat.id}`)

@@ -1,5 +1,6 @@
 import type { Group } from "@/contexts/app/chats/domain/entities/group"
 import type { GroupMessage } from "@/contexts/app/chats/domain/entities/group-message"
+import type { User } from "@/contexts/app/user/domain/entities/user"
 import type { CursorPaginated } from "@/utils/cursor-paginated"
 
 export abstract class GroupRepository {
@@ -9,5 +10,6 @@ export abstract class GroupRepository {
   abstract findMessagesCursorPaginatedByGroupId(
     groupId: string,
     cursor?: string | null
-  ): Promise<CursorPaginated<GroupMessage>>
+  ): Promise<CursorPaginated<GroupMessage & { sender: User }>>
+  abstract findByUserId(userId: string): Promise<Group[]>
 }
