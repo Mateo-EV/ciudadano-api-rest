@@ -33,13 +33,31 @@ export class MessageSentHandler implements IEventHandler<MessageSentEvent> {
       socketClient.broadcast
         .to(`chat_group:${message.groupId}`)
         .emit("chat_group:message_sent", {
-          group_message: message
+          group_message: {
+            ...message,
+            sender: {
+              id: event.sender.id,
+              firstName: event.sender.firstName,
+              lastName: event.sender.lastName,
+              phone: event.sender.phone,
+              email: event.sender.email
+            }
+          }
         })
       event.userIdsToNotify.forEach(userId => {
         socketClient.broadcast
           .to(`user:${userId}`)
           .emit("chat_group:message_sent_outside", {
-            group_message: message
+            group_message: {
+              ...message,
+              sender: {
+                id: event.sender.id,
+                firstName: event.sender.firstName,
+                lastName: event.sender.lastName,
+                phone: event.sender.phone,
+                email: event.sender.email
+              }
+            }
           })
       })
     }

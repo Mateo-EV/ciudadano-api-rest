@@ -38,7 +38,12 @@ export class SendMessageToGroupUseCase
       .filter(userId => userId !== input.userSender.id)
 
     this.eventBus.publish(
-      new MessageSentEvent(groupMessage, userIdsToNotify, input.payload)
+      new MessageSentEvent(
+        groupMessage,
+        userIdsToNotify,
+        input.userSender,
+        input.payload
+      )
     )
 
     return await this.groupRepository.createMessage(groupMessage)
