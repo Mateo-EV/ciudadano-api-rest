@@ -12,7 +12,10 @@ export class PrismaContactRepository implements ContactRepository {
 
   async create(contact: Contact): Promise<Contact> {
     const prismaCreatedContact = await this.prismaService.contact.create({
-      data: ContactMapper.prisma.toCreate(contact)
+      data: ContactMapper.prisma.toCreate(contact),
+      include: {
+        to: true
+      }
     })
 
     return ContactMapper.prisma.toDomain(prismaCreatedContact)
@@ -21,7 +24,10 @@ export class PrismaContactRepository implements ContactRepository {
   async createMessage(message: ContactMessage): Promise<ContactMessage> {
     const prismaCreatedMessage = await this.prismaService.contactMessage.create(
       {
-        data: ContactMapper.prisma.toMessageCreate(message)
+        data: ContactMapper.prisma.toMessageCreate(message),
+        include: {
+          user: true
+        }
       }
     )
 
@@ -48,44 +54,60 @@ export class PrismaContactRepository implements ContactRepository {
     const prismaContacts = await this.prismaService.contact.findMany({
       where: {
         OR: [{ from_id: userId }, { to_id: userId }]
+      },
+      include: {
+        to: true,
+        from: true
       }
     })
 
     return prismaContacts.map(prismaContact =>
-      ContactMapper.prisma.toDomain(prismaContact)
+      ContactMapper.prisma.toDomain({
+        ...prismaContact,
+        to:
+          prismaContact.to_id === userId ? prismaContact.from : prismaContact.to
+      })
     )
   }
 
   async findMessagesCursorPaginatedByContact(
     contact: Contact,
-    cursor?: string | null
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _?: string | null
   ): Promise<CursorPaginated<ContactMessage>> {
     const prismaContactMessages =
       await this.prismaService.contactMessage.findMany({
         where: { contact_id: contact.id },
-        cursor: cursor ? { id: cursor } : undefined,
-        take: 10 + 1,
-        orderBy: { created_at: "desc" }
+        // cursor: cursor ? { id: cursor } : undefined,
+        // take: 10 + 1,
+        orderBy: { created_at: "desc" },
+        include: {
+          user: true
+        }
       })
 
-    const hasMore = prismaContactMessages.length > 10
-    let nextCursor: string | undefined = undefined
-    if (hasMore) {
-      const nextItem = prismaContactMessages.pop()
-      nextCursor = nextItem?.id
-    }
+    // const hasMore = prismaContactMessages.length > 10
+    // let nextCursor: string | undefined = undefined
+    // if (hasMore) {
+    //   const nextItem = prismaContactMessages.pop()
+    //   nextCursor = nextItem?.id
+    // }
 
     return {
       items: prismaContactMessages.map(prismaContactMessage =>
         ContactMapper.prisma.toMessageDomain(prismaContactMessage)
       ),
-      nextCursor: nextCursor ?? null
+      nextCursor: null
     }
   }
 
   async findById(contactId: string): Promise<Contact | null> {
     const prismaContact = await this.prismaService.contact.findUnique({
-      where: { id: contactId }
+      where: { id: contactId },
+      include: {
+        from: true,
+        to: true
+      }
     })
 
     if (!prismaContact) {

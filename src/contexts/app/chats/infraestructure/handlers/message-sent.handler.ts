@@ -15,49 +15,31 @@ export class MessageSentHandler implements IEventHandler<MessageSentEvent> {
     }
 
     if (message instanceof ContactMessage) {
-      socketClient.broadcast
-        .to(`chat_contact:${message.contact_id}`)
-        .emit("chat_contact:message_sent", {
-          contact_message: message
-        })
+      // socketClient.broadcast
+      //   .to(`chat_contact:${message.contact_id}`)
+      //   .emit("chat_contact:message_sent", {
+      //     contact_message: message
+      //   })
       event.userIdsToNotify.forEach(userId => {
         socketClient.broadcast
           .to(`user:${userId}`)
-          .emit("chat_contact:message_sent_outside", {
+          .emit("chat_contact:message_sent", {
             contact_message: message
           })
       })
     }
 
     if (message instanceof GroupMessage) {
-      socketClient.broadcast
-        .to(`chat_group:${message.groupId}`)
-        .emit("chat_group:message_sent", {
-          group_message: {
-            ...message,
-            sender: {
-              id: event.sender.id,
-              firstName: event.sender.firstName,
-              lastName: event.sender.lastName,
-              phone: event.sender.phone,
-              email: event.sender.email
-            }
-          }
-        })
+      // socketClient.broadcast
+      //   .to(`chat_group:${message.groupId}`)
+      //   .emit("chat_group:message_sent", {
+      //     group_message: message
+      //   })
       event.userIdsToNotify.forEach(userId => {
         socketClient.broadcast
           .to(`user:${userId}`)
-          .emit("chat_group:message_sent_outside", {
-            group_message: {
-              ...message,
-              sender: {
-                id: event.sender.id,
-                firstName: event.sender.firstName,
-                lastName: event.sender.lastName,
-                phone: event.sender.phone,
-                email: event.sender.email
-              }
-            }
+          .emit("chat_group:message_sent", {
+            group_message: message
           })
       })
     }

@@ -2,6 +2,7 @@ import { AddContactUseCase } from "@/contexts/app/chats/application/use-cases/ad
 import { CreateGroupUseCase } from "@/contexts/app/chats/application/use-cases/create-group.use-case"
 import { GetContactByIdUseCase } from "@/contexts/app/chats/application/use-cases/get-contact-by-id.use-case"
 import { GetContactMessagesCursorPaginatedByContactIdUseCase } from "@/contexts/app/chats/application/use-cases/get-contact-messages-cursor-paginated-by-contact-id.use-case"
+import { GetContactsByUserUseCase } from "@/contexts/app/chats/application/use-cases/get-contacts-by-user.use-case"
 import { GetGroupByIdUseCase } from "@/contexts/app/chats/application/use-cases/get-group-by-id.use-case"
 import { GetGroupMessagesCursorPaginatedByGroupIdUseCase } from "@/contexts/app/chats/application/use-cases/get-group-messages-cursor-paginated-by-contact-id.use-case"
 import { GetGroupsByUserUseCase } from "@/contexts/app/chats/application/use-cases/get-groups-by-user.use-case"
@@ -32,6 +33,7 @@ import { Module } from "@nestjs/common"
     GetContactMessagesCursorPaginatedByContactIdUseCase,
     GetGroupMessagesCursorPaginatedByGroupIdUseCase,
     GetGroupsByUserUseCase,
+    GetContactsByUserUseCase,
     // CONTRACTS
     { provide: ContactRepository, useClass: PrismaContactRepository },
     { provide: GroupRepository, useClass: PrismaGroupRepository },

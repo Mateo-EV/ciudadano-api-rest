@@ -11,6 +11,7 @@ import { SendMessageToGroupUseCase } from "@/contexts/app/chats/application/use-
 import { Contact } from "@/contexts/app/chats/domain/entities/contact"
 import { Group } from "@/contexts/app/chats/domain/entities/group"
 import { ChatExceptionWsFilter } from "@/contexts/app/chats/infraestructure/ws/filter/chat-exception-ws.filter"
+import { ChatWsInterceptor } from "@/contexts/app/chats/infraestructure/ws/interceptor/chat-ws.interceptor"
 import {
   addContactSchema,
   AddContactSchemaDto
@@ -24,9 +25,8 @@ import {
   SendMessageSchemaDto
 } from "@/contexts/app/chats/infraestructure/ws/schemas/send-message-schema.dto"
 import { ZodWsValidationPipe } from "@/lib/zod/zod-ws-validation.pipe"
-import { UseFilters } from "@nestjs/common"
+import { UseFilters, UseInterceptors } from "@nestjs/common"
 import {
-  Ack,
   ConnectedSocket,
   MessageBody,
   OnGatewayConnection,
@@ -46,6 +46,7 @@ type JoinedChatRoomSocket = AuthenticatedSocket & {
 
 @WebSocketGateway({ namespace: "chats" })
 @UseFilters(ChatExceptionWsFilter)
+@UseInterceptors(ChatWsInterceptor)
 export class ChatGateway implements OnGatewayConnection {
   constructor(
     private readonly validateUserIsAuthenticatedInWsHelper: ValidateUserIsAuthenticatedInWsHelper,
@@ -163,8 +164,7 @@ export class ChatGateway implements OnGatewayConnection {
   async handleCreateGroup(
     @ConnectedSocket() client: AuthenticatedSocket,
     @MessageBody(new ZodWsValidationPipe(createGroupSchema))
-    data: CreateGroupSchemaDto,
-    @Ack() ack: (response: any) => void
+    data: CreateGroupSchemaDto
   ) {
     const group = await this.createGroupUseCase.execute({
       ownerUserId: client.user.id,
@@ -174,10 +174,10 @@ export class ChatGateway implements OnGatewayConnection {
       memberIds: data.memberIds
     })
 
-    ack({
+    return {
       message: "Grupo agregado exitosamente",
       data: group
-    })
+    }
   }
 
   @SubscribeMessage("chat_group:send_message")
@@ -186,8 +186,6 @@ export class ChatGateway implements OnGatewayConnection {
     @MessageBody(new ZodWsValidationPipe(sendMessageSchema))
     data: SendMessageSchemaDto
   ) {
-    console.log(data)
-
     if (!client.payload.chat || !(client.payload.chat instanceof Group)) {
       throw new WsException("Debes unirte a una sala de grupo primero")
     }
@@ -204,15 +202,7 @@ export class ChatGateway implements OnGatewayConnection {
     ).pipe(
       map(chatMessage => ({
         message: "Mensaje enviado exitosamente",
-        data: {
-          ...chatMessage,
-          sender: {
-            id: client.user.id,
-            firstName: client.user.firstName,
-            lastName: client.user.lastName,
-            phone: client.user.phone
-          }
-        }
+        data: chatMessage
       }))
     )
   }
@@ -233,13 +223,10 @@ export class ChatGateway implements OnGatewayConnection {
     })
     await client.join(`chat_group:${group.id}`)
 
-    console.log(groupId)
-
     Object.assign(client, {
       payload: { chat: group, ...client.payload }
     }) as JoinedChatRoomSocket
 
-    console.log(groupId)
     return {
       message: "Te has unido a la sala del grupo",
       data: group
@@ -248,12 +235,9 @@ export class ChatGateway implements OnGatewayConnection {
 
   @SubscribeMessage("chat_group:leave")
   async handleLeaveGroupRoom(@ConnectedSocket() client: JoinedChatRoomSocket) {
-    console.log("leyendo grupo", client.payload.chat)
     if (!client.payload.chat) {
       throw new WsException("No estás en una sala de grupo")
     }
-
-    console.log("leyendo grupo", client.payload.chat)
 
     if (client.payload.chat instanceof Group) {
       await client.leave(`chat_group:${client.payload.chat.id}`)

@@ -1,4 +1,5 @@
 import { GetContactMessagesCursorPaginatedByContactIdUseCase } from "@/contexts/app/chats/application/use-cases/get-contact-messages-cursor-paginated-by-contact-id.use-case"
+import { GetContactsByUserUseCase } from "@/contexts/app/chats/application/use-cases/get-contacts-by-user.use-case"
 import { GetGroupMessagesCursorPaginatedByGroupIdUseCase } from "@/contexts/app/chats/application/use-cases/get-group-messages-cursor-paginated-by-contact-id.use-case"
 import { GetGroupsByUserUseCase } from "@/contexts/app/chats/application/use-cases/get-groups-by-user.use-case"
 import { GetPossibleContactsByPhonesUseCase } from "@/contexts/app/chats/application/use-cases/get-possible-contacts-by-phones.use-case"
@@ -16,7 +17,8 @@ export class ChatController {
     protected readonly getPossibleContactsByPhonesUseCase: GetPossibleContactsByPhonesUseCase,
     protected readonly getContactMessagesCursorPaginatedByContactIdUseCase: GetContactMessagesCursorPaginatedByContactIdUseCase,
     protected readonly getGroupMessagesCursorPaginatedByGroupIdUseCase: GetGroupMessagesCursorPaginatedByGroupIdUseCase,
-    protected readonly getGroupsByUserUseCase: GetGroupsByUserUseCase
+    protected readonly getGroupsByUserUseCase: GetGroupsByUserUseCase,
+    protected readonly getContactsByUserUseCase: GetContactsByUserUseCase
   ) {}
 
   @Get("possible-contacts")
@@ -45,6 +47,18 @@ export class ChatController {
         phone: contact.phone
       }))
     }
+  }
+
+  @Get("contacts/me")
+  @ApiBearerAuth()
+  async getContactsByUser(@Req() req: Express.Request) {
+    const user = req.user as User
+
+    const contacts = await this.getContactsByUserUseCase.execute({
+      user
+    })
+
+    return { data: contacts }
   }
 
   @Get("contacts/:contactId/messages")

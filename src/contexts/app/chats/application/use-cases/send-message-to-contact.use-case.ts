@@ -33,13 +33,13 @@ export class SendMessageToContactUseCase
       createdAt: new Date()
     })
 
-    const sendToUserId =
-      input.contact.from_user_id === input.userSender.id
-        ? input.contact.to_user_id
-        : input.contact.from_user_id
-
     this.eventBus.publish(
-      new MessageSentEvent(contactMessage, [sendToUserId], input.payload)
+      new MessageSentEvent(
+        contactMessage,
+        [input.contact.from_user_id, input.contact.to_user_id],
+        input.userSender,
+        input.payload
+      )
     )
 
     return await this.contactRepository.createMessage(contactMessage)

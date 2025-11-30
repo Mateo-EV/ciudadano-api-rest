@@ -5,12 +5,17 @@ import type {
   Prisma,
   Group as PrismaGroup,
   GroupUser as PrismaGroupUser,
-  GroupMessage as PrismaGroupMessage
+  GroupMessage as PrismaGroupMessage,
+  User as PrismaUser
 } from "@prisma/client"
 
 export class GroupMapper {
   static prisma = {
-    toDomain(prismaGroup: PrismaGroup & { members: PrismaGroupUser[] }): Group {
+    toDomain(
+      prismaGroup: PrismaGroup & {
+        members: (PrismaGroupUser & { user: PrismaUser })[]
+      }
+    ): Group {
       return Group.create({
         id: prismaGroup.id,
         name: prismaGroup.name,
@@ -20,7 +25,13 @@ export class GroupMapper {
           GroupUser.create({
             groupId: prismaGroupUser.group_id,
             userId: prismaGroupUser.user_id,
-            joinedAt: prismaGroupUser.join_date
+            joinedAt: prismaGroupUser.join_date,
+            user: {
+              id: prismaGroupUser.user.id,
+              firstName: prismaGroupUser.user.first_name,
+              lastName: prismaGroupUser.user.last_name,
+              phone: prismaGroupUser.user.phone ?? ""
+            }
           })
         )
       })
@@ -41,13 +52,21 @@ export class GroupMapper {
         }
       }
     },
-    toMessageDomain(prismaMessage: PrismaGroupMessage): GroupMessage {
+    toMessageDomain(
+      prismaMessage: PrismaGroupMessage & { user: PrismaUser }
+    ): GroupMessage {
       return GroupMessage.create({
         id: prismaMessage.id,
         groupId: prismaMessage.group_id,
         content: prismaMessage.content,
         createdAt: prismaMessage.created_at,
-        senderId: prismaMessage.user_id
+        senderId: prismaMessage.user_id,
+        sender: {
+          id: prismaMessage.user.id,
+          firstName: prismaMessage.user.first_name,
+          lastName: prismaMessage.user.last_name,
+          phone: prismaMessage.user.phone ?? ""
+        }
       })
     },
     toMessageCreate(

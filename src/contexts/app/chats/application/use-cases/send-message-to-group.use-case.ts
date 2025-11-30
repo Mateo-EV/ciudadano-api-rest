@@ -33,9 +33,7 @@ export class SendMessageToGroupUseCase
       createdAt: new Date()
     })
 
-    const userIdsToNotify = input.group.members
-      .map(member => member.userId)
-      .filter(userId => userId !== input.userSender.id)
+    const userIdsToNotify = input.group.members.map(member => member.userId)
 
     this.eventBus.publish(
       new MessageSentEvent(

@@ -3,17 +3,24 @@ import { ContactMessage } from "@/contexts/app/chats/domain/entities/contact-mes
 import type {
   Prisma,
   Contact as PrismaContact,
-  ContactMessage as PrismaContactMessage
+  ContactMessage as PrismaContactMessage,
+  User as PrismaUser
 } from "@prisma/client"
 
 export class ContactMapper {
   static prisma = {
-    toDomain(prismaContact: PrismaContact): Contact {
+    toDomain(prismaContact: PrismaContact & { to: PrismaUser }): Contact {
       return Contact.create({
         id: prismaContact.id,
         created_at: prismaContact.created_at,
         from_user_id: prismaContact.from_id,
-        to_user_id: prismaContact.to_id
+        to_user_id: prismaContact.to_id,
+        other_user: {
+          id: prismaContact.to.id,
+          firstName: prismaContact.to.first_name,
+          lastName: prismaContact.to.last_name,
+          phone: prismaContact.to.phone ?? ""
+        }
       })
     },
     toCreate(contact: Contact): Prisma.ContactCreateArgs["data"] {
@@ -25,13 +32,21 @@ export class ContactMapper {
       }
     },
 
-    toMessageDomain(prismaMessage: PrismaContactMessage): ContactMessage {
+    toMessageDomain(
+      prismaMessage: PrismaContactMessage & { user: PrismaUser }
+    ): ContactMessage {
       return ContactMessage.create({
         id: prismaMessage.id,
         contact_id: prismaMessage.contact_id,
         content: prismaMessage.content,
         createdAt: prismaMessage.created_at,
-        sent_by_user_id: prismaMessage.user_id
+        sent_by_user_id: prismaMessage.user_id,
+        sender: {
+          id: prismaMessage.user.id,
+          firstName: prismaMessage.user.first_name,
+          lastName: prismaMessage.user.last_name,
+          phone: prismaMessage.user.phone ?? ""
+        }
       })
     },
     toMessageCreate(
