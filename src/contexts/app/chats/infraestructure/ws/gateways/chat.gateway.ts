@@ -94,6 +94,7 @@ export class ChatGateway implements OnGatewayConnection {
     @ConnectedSocket() client: AuthenticatedSocket,
     @MessageBody("contact_id") contactId: string
   ) {
+    console.log("Joined contact")
     if ((client as JoinedChatRoomSocket).payload?.chat) {
       const previousChatId = (client as JoinedChatRoomSocket).payload.chat.id
       await client.leave(`chat_contact:${previousChatId}`)
@@ -107,7 +108,7 @@ export class ChatGateway implements OnGatewayConnection {
     await client.join(`chat_contact:${contact.id}`)
 
     Object.assign(client, {
-      payload: { chat: contact, ...client.payload }
+      payload: { ...client.payload, chat: contact }
     }) as JoinedChatRoomSocket
 
     return {
@@ -120,12 +121,16 @@ export class ChatGateway implements OnGatewayConnection {
   async handleLeaveContactRoom(
     @ConnectedSocket() client: JoinedChatRoomSocket
   ) {
+    console.log("Leave contact")
     if (!client.payload.chat) {
       throw new WsException("No estás en una sala de contacto")
     }
 
     if (client.payload.chat instanceof Contact) {
       await client.leave(`chat_contact:${client.payload.chat.id}`)
+      Object.assign(client, {
+        payload: { ...client.payload, chat: null }
+      }) as JoinedChatRoomSocket
     }
 
     return {
@@ -216,6 +221,8 @@ export class ChatGateway implements OnGatewayConnection {
     @ConnectedSocket() client: AuthenticatedSocket,
     @MessageBody("group_id") groupId: string
   ) {
+    console.log("JJoined group")
+
     if ((client as JoinedChatRoomSocket).payload?.chat) {
       const previousChatId = (client as JoinedChatRoomSocket).payload.chat.id
       await client.leave(`chat_group:${previousChatId}`)
@@ -227,8 +234,10 @@ export class ChatGateway implements OnGatewayConnection {
     })
     await client.join(`chat_group:${group.id}`)
 
+    console.log("Joined group", group.id)
+
     Object.assign(client, {
-      payload: { chat: group, ...client.payload }
+      payload: { ...client.payload, chat: group }
     }) as JoinedChatRoomSocket
 
     return {
@@ -239,12 +248,16 @@ export class ChatGateway implements OnGatewayConnection {
 
   @SubscribeMessage("chat_group:leave")
   async handleLeaveGroupRoom(@ConnectedSocket() client: JoinedChatRoomSocket) {
+    console.log("Leave group")
     if (!client.payload.chat) {
       throw new WsException("No estás en una sala de grupo")
     }
 
     if (client.payload.chat instanceof Group) {
       await client.leave(`chat_group:${client.payload.chat.id}`)
+      Object.assign(client, {
+        payload: { ...client.payload, chat: null }
+      }) as JoinedChatRoomSocket
     }
 
     return {

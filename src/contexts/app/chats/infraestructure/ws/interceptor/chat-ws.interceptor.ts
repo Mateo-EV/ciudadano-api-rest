@@ -4,7 +4,7 @@ import {
   Injectable,
   NestInterceptor
 } from "@nestjs/common"
-import { catchError, map, Observable, throwError } from "rxjs"
+import { catchError, map, Observable, of } from "rxjs"
 
 interface ResponseData {
   data?: unknown
@@ -24,10 +24,10 @@ export class ChatWsInterceptor implements NestInterceptor {
         message: (data as ResponseData)?.message ?? null
       })),
       catchError(err => {
-        return throwError(() => ({
+        return of({
           ok: false,
           message: (err as Error).message || "Ocurrió un error inesperado"
-        }))
+        })
       })
     )
   }
