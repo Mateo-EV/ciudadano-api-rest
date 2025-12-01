@@ -30,6 +30,12 @@ export class SendMessageToGroupUseCase
       content: input.message,
       groupId: input.group.id,
       senderId: input.userSender.id,
+      sender: {
+        id: input.userSender.id,
+        firstName: input.userSender.firstName,
+        lastName: input.userSender.lastName,
+        phone: input.userSender.phone ?? ""
+      },
       createdAt: new Date()
     })
 

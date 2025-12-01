@@ -30,7 +30,13 @@ export class SendMessageToContactUseCase
       contact_id: input.contact.id,
       content: input.message,
       sent_by_user_id: input.userSender.id,
-      createdAt: new Date()
+      createdAt: new Date(),
+      sender: {
+        id: input.userSender.id,
+        firstName: input.userSender.firstName,
+        lastName: input.userSender.lastName,
+        phone: input.userSender.phone ?? ""
+      }
     })
 
     this.eventBus.publish(
