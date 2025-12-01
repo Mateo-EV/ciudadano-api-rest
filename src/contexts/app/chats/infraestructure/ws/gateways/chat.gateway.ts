@@ -139,9 +139,13 @@ export class ChatGateway implements OnGatewayConnection {
     @MessageBody(new ZodWsValidationPipe(sendMessageSchema))
     data: SendMessageSchemaDto
   ) {
+    console.log("CHAT_CONTACT:send_message")
+
     if (!client.payload.chat || !(client.payload.chat instanceof Contact)) {
       throw new WsException("Debes unirte a una sala de contacto primero")
     }
+
+    console.log("passed")
 
     return from(
       this.sendMessageToContactUseCase.execute({
